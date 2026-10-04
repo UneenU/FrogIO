@@ -1,6 +1,7 @@
 namespace Core.Commands;
 
-public interface ICommandHendler
+/// <summary>Первый этап тика: превращает ввод контроллеров в состояние сущностей.</summary>
+public interface ICommandHandler
 {
-    public void Handle(UserCommand[] userCommands, SimulationContext ctx);
+    void Handle(IReadOnlyList<Command> playerCommands, SimulationContext ctx);
 }
