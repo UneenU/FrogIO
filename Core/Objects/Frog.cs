@@ -12,7 +12,7 @@ public enum FrogState
 }
 
 public class Frog(int id, Vector2 position, float radius, WaterLily? lily = null)
-    : GameObject(id, position, radius), IMovable
+    : GameObject(id, position, radius), IMovable, ICollidable
 {
     private const float Epsilon = 1e-6f;
 
@@ -21,7 +21,7 @@ public class Frog(int id, Vector2 position, float radius, WaterLily? lily = null
     private const float JumpPeakHeight = 1.5f;
 
     private float JumpSpeed { get; } = 0.25f;
-    private float MaxJumpDistance { get; } = 4f;
+    public float MaxJumpDistance { get; } = 4f;
     private float SwimSpeed { get; } = 0.1f;
     public float TongueRange { get; } = 2.5f;
 
@@ -32,20 +32,27 @@ public class Frog(int id, Vector2 position, float radius, WaterLily? lily = null
     public WaterLily? Lily { get; private set; } = lily;
     public Vector2 Facing { get; private set; } = Vector2.UnitY;
     public Vector2 Velocity { get; private set; }
+    public Vector2 Drift { get; private set; } = Vector2.Zero;
     public int AirTicksRemaining { get; private set; }
 
     private int _jumpTotalTicks;
 
     public bool IsAlive => State != FrogState.Dead;
     public bool IsInAir => State == FrogState.Jumping;
+    public bool IsAvailable => State == FrogState.SittingOnWaterLily || State == FrogState.Swimming;
 
     /// <summary>Применяет смещение, посчитанное системой движения. Больше ничего не делает.</summary>
     public void MoveBy(Vector2 delta) => Position += delta;
 
+    public void AddImpulse(Vector2 deltaV)
+    {
+        Drift += deltaV;
+    }
+
     /// <summary>Смотреть в сторону, не двигаясь (прицел мышью). Нулевой вектор игнорируется.</summary>
     public void Aim(Vector2 direction)
     {
-        if (IsAlive && direction.LengthSquared() > Epsilon)
+        if (IsAvailable && direction.LengthSquared() > Epsilon)
             Facing = Vector2.Normalize(direction);
     }
 
@@ -96,7 +103,7 @@ public class Frog(int id, Vector2 position, float radius, WaterLily? lily = null
         if (lily is null)
         {
             State = FrogState.Swimming;
-            return new FrogJumpedInWaterEvent(this);
+            return new FrogFallInWaterEvent(this);
         }
 
         State = FrogState.SittingOnWaterLily;

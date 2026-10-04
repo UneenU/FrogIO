@@ -9,9 +9,22 @@ public class WaterLily : GameObject, IMovable
     }
 
 
-    public Vector2 Velocity { get; set; }
+    public Vector2 Velocity { get; set; } = Vector2.Zero;
+    public Vector2 Drift { get; private set; } = Vector2.Zero;
+
     public void MoveBy(Vector2 delta)
     {
         Position += delta;
+    }
+
+    public void AddImpulse(Vector2 deltaV)
+    {
+        Drift += deltaV;
+    }
+
+    public bool Contains(Vector2 frogPosition)
+    {
+        if ((frogPosition - Position).Length() > Radius) return false;
+        return true;
     }
 }

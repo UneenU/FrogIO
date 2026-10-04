@@ -7,7 +7,7 @@ public abstract class GameObject
     public int Id { get; }
     public Vector2 Position { get; protected set; }
     public float Height { get; protected set; }
-    public float Radius { get; }
+    public float Radius { get; protected set; }
     
     protected GameObject(int id, Vector2 position, float radius)
     {
