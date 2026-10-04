@@ -4,24 +4,19 @@ public class GameEvent
 {
 }
 
-public class FrogJumpedInWaterEvent : GameEvent
+public class FrogFallInWaterEvent(Frog frog) : GameEvent
 {
-    private Frog Frog { get; init; }
-
-    public FrogJumpedInWaterEvent(Frog frog)
-    {
-        Frog = frog;
-    }
+    public Frog Frog { get; init; } = frog;
 }
 
-public class FrogLandOnWaterLilyEvent : GameEvent
+public class FrogLandOnWaterLilyEvent(Frog frog, WaterLily waterLily) : GameEvent
 {
-    private Frog Frog { get; init; }
-    private WaterLily WaterLily { get; init; }
+    public Frog Frog { get; init; } = frog;
+    public WaterLily WaterLily { get; init; } = waterLily;
+}
 
-    public FrogLandOnWaterLilyEvent(Frog frog, WaterLily waterLily)
-    {
-        Frog = frog;
-        WaterLily = waterLily;
-    }
+public class TwoObjectsCollided: GameEvent
+{
+    public GameObject obj1 { get; init; }
+    public GameObject obj2 { get; init; }
 }
