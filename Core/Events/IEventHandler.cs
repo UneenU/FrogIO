@@ -27,21 +27,21 @@ public class FrogLandOnWaterLilyEventHandler : IEventHandler<FrogLandOnWaterLily
 /// Реакция на столкновение двух кругов: упругий удар вдоль нормали + раздвижка пересечения.
 /// Недвижимый объект (не IMovable) ведёт себя как стена бесконечной массы.
 /// </summary>
-public sealed class TwoObjectsCollidedEventHandler : IEventHandler<TwoObjectsCollided>
+public sealed class TwoObjectsCollidedEventHandler : IEventHandler<TwoObjectsCollidedEvent>
 {
     private const float Epsilon = 1e-6f;
 
     /// <summary>1 = абсолютно упругий удар, 0 = абсолютно неупругий.</summary>
     private const float Restitution = 1f;
 
-    public void Handle(TwoObjectsCollided e, SimulationContext ctx)
+    public void Handle(TwoObjectsCollidedEvent e, SimulationContext ctx)
     {
-        var a = new Participant(e.obj1);
-        var b = new Participant(e.obj2);
+        var a = new Participant(e.Obj1);
+        var b = new Participant(e.Obj2);
 
         if (a.IsStatic && b.IsStatic)
             throw new InvalidOperationException(
-                $"Столкнулись два неподвижных объекта ({a.Obj.Id} и {b.Obj.Id}).");
+                $"Столкнулись два неподвижных объекта ({(a.Obj as GameObject)!.Id} и {(b.Obj as GameObject)!.Id}).");
 
         var totalInvMass = a.InverseMass + b.InverseMass;
         var offset = a.Obj.Position - b.Obj.Position;
@@ -64,14 +64,22 @@ public sealed class TwoObjectsCollidedEventHandler : IEventHandler<TwoObjectsCol
         b.Movable?.AddImpulse(-n * (impulse * b.InverseMass));
     }
 
-    private readonly struct Participant(GameObject obj)
+    private readonly struct Participant(ICollidable obj)
     {
-        public GameObject Obj { get; } = obj;
+        public ICollidable Obj { get; } = obj;
         public IMovable? Movable { get; } = obj as IMovable;
 
         public bool IsStatic => Movable is null;
         public Vector2 Velocity => Movable?.TotalVelocity ?? Vector2.Zero;
 
         public float InverseMass => Movable is null ? 0f : 1f / (Obj.Radius * Obj.Radius);
+    }
+}
+
+public class FrogEatFlyEventHandler : IEventHandler<FrogEatFlyEvent>
+{
+    public void Handle(FrogEatFlyEvent e, SimulationContext simulationContext)
+    {
+        simulationContext.Map.Despawn(e.Fly);
     }
 }

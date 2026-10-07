@@ -7,6 +7,9 @@ public class Map
     public float Width { get; }
     public float Height { get; }
     public IList<GameObject> GameObjects { get; }
+    
+    private readonly List<GameObject> _pendingSpawns = new();
+    private readonly List<GameObject> _pendingDespawns = new();
  
     public Map(float width, float height, IList<GameObject> gameObjects)
     {
@@ -18,6 +21,12 @@ public class Map
     public void Add(GameObject obj) => GameObjects.Add(obj);
  
     public bool Remove(GameObject obj) => GameObjects.Remove(obj);
+    
+    /// Добавить объект в конце тика. Безопасно звать из систем и обработчиков событий.
+    public void Spawn(GameObject obj) => _pendingSpawns.Add(obj);
+
+    /// Убрать объект в конце тика. Безопасно звать из систем и обработчиков событий.
+    public void Despawn(GameObject obj) => _pendingDespawns.Add(obj);
  
     public IEnumerable<T> Query<T>() => GameObjects.OfType<T>();
  
@@ -44,9 +53,16 @@ public class Map
         //TODO: реализовать логику определения плотности среды в точке
         return 1.5f;
     }
-
-    public void Despawn(WaterSplash splash)
+    
+    public void ApplyPendingChanges()
     {
-        throw new NotImplementedException();
+        foreach (var obj in _pendingDespawns)
+            GameObjects.Remove(obj);
+        foreach (var obj in _pendingSpawns)
+            GameObjects.Add(obj);
+
+        _pendingDespawns.Clear();
+        _pendingSpawns.Clear();
     }
+    
 }

@@ -7,9 +7,8 @@ public enum CommandButtons : byte
 {
     None = 0,
     Move = 1 << 0,    // удерживается: двигаться к Target
-    Jump = 1 << 1,    // срабатывает на нажатие
-    Attack = 1 << 2,  // срабатывает на нажатие
-    All = Move | Jump | Attack
+    Attack = 1 << 1,  // срабатывает на нажатие
+    All = Move | Attack
 }
 
 /// <param name="ControllerId">Кто выдал команду. Для ИИ подставляет ControlSystem.</param>

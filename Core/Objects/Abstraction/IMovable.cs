@@ -5,6 +5,7 @@ namespace Core;
 public interface IMovable
 {
     Vector2 Velocity { get; }
+    Vector2 Position { get; }
     Vector2 Drift { get; }
     sealed Vector2 TotalVelocity => Velocity + Drift;
     void MoveBy(Vector2 delta);
@@ -12,6 +13,8 @@ public interface IMovable
 
     void DampDrift(float delta)
     {
+        if (Drift == Vector2.Zero) return;
+        if (delta > Drift.Length()) delta = Drift.Length();
         AddImpulse(-delta*Vector2.Normalize(Drift));
     }
 

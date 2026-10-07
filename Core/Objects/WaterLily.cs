@@ -2,13 +2,8 @@ using System.Numerics;
 
 namespace Core;
 
-public class WaterLily : GameObject, IMovable
+public class WaterLily(int id, Vector2 position, float radius) : GameObject(id, position, radius), IMovable, ICollidable
 {
-    public WaterLily(int id, Vector2 position, float radius) : base(id, position, radius)
-    {
-    }
-
-
     public Vector2 Velocity { get; set; } = Vector2.Zero;
     public Vector2 Drift { get; private set; } = Vector2.Zero;
 

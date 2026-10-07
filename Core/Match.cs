@@ -1,4 +1,3 @@
-using System.Numerics;
 using Core.Commands;
 using Core.Events;
 
@@ -10,47 +9,42 @@ public interface IEventSink
 }
 
 
-public class Match : IEventSink
+public class Match
 {
-    private readonly Queue<GameEvent> _events = new();
     private readonly Map _map;
     private readonly ICommandHandler _commandHandler;
     private readonly IReadOnlyList<ISimulationSystem> _systems;
-
+    private readonly EventDispatcher _events;
+ 
     public Gamer[] Gamers { get; init; }
     public int Tick { get; private set; }
 
     /// <param name="systems">Порядок в списке = порядок выполнения внутри тика (движение, потом приземление).</param>
-    public Match(Map map, Gamer[] gamers, ICommandHandler commandHandler, IReadOnlyList<ISimulationSystem> systems)
+    public Match(
+        Map map,
+        Gamer[] gamers,
+        ICommandHandler commandHandler,
+        IReadOnlyList<ISimulationSystem> systems,
+        EventDispatcher events)
     {
         _map = map;
         Gamers = gamers;
         _commandHandler = commandHandler;
         _systems = systems;
+        _events = events;
     }
-
-    // Явная реализация: снаружи Match события публиковать нельзя, только системы через контекст.
-    void IEventSink.Publish(GameEvent e) => _events.Enqueue(e);
-
+    
     public void Step(Command[] userCommands)
     {
-        var ctx = new SimulationContext(_map, Tick, this);
-
-        _commandHandler.Handle(userCommands, ctx); // намерения -> состояние сущностей (TryStartJump, Aim, Swim)
-
-        foreach (var system in _systems) // MovementSystem, LandingSystem, ...
+        var ctx = new SimulationContext(_map, Tick, _events);
+ 
+        _commandHandler.Handle(userCommands, ctx);
+ 
+        foreach (var system in _systems)
             system.Update(ctx);
-
-        DispatchEvents();
+ 
+        _events.DispatchAll(ctx);
+        _map.ApplyPendingChanges();
         Tick++;
-    }
-
-    private void DispatchEvents()
-    {
-        while (_events.TryDequeue(out var e))
-        {
-            // TODO: найти IEventHandler<T> по типу события.
-            // Новые события, опубликованные обработчиками, попадут в ту же очередь (поставить лимит итераций).
-        }
     }
 }

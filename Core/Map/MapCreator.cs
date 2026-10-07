@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Core;
 
@@ -16,12 +17,20 @@ public class MapConfig
     public int MaxAttemptsPerObject { get; init; } = 100;
 
     public IReadOnlyList<ObjectSpawn> Spawns { get; init; } = [];
+
+    public MapConfig(float width, float height, IReadOnlyList<ObjectSpawn> spawns)
+    {
+        Width = width;
+        Height = height;
+        Spawns = spawns;
+    }
 }
 
 public class MapCreator
 {
     private readonly MapConfig _config;
     private readonly int _seed;
+    private readonly Dictionary<Type, ICreator<GameObject>> _creators = new();
 
     public MapCreator(MapConfig config, int seed)
     {
@@ -29,34 +38,31 @@ public class MapCreator
         Validate(config);
         _config = config;
         _seed = seed;
+        _creators[typeof(Frog)] = new FrogCreator(seed);
+        _creators[typeof(WaterLily)] = new LilyCreator(seed);
+        _creators[typeof(Fly)] = new FlyCreator(seed);
     }
 
     public Map Create()
     {
         var random = new Random(_seed);
         var objects = new List<GameObject>();
+        Map map = new Map(_config.Width, _config.Height, objects);
 
-        // Крупные объекты ставим первыми: их сложнее разместить, когда карта уже заполнена.
         var plan = _config.Spawns
-            .Select(spawn => (Spawn: spawn, Radius: ProbeSize(spawn.Type)))
-            .OrderByDescending(x => x.Radius)
-            .ToList();
+            .Select(s => (s, _creators[s.Type].MaxSize))
+            .OrderByDescending(x => x.MaxSize);
 
         foreach (var (spawn, radius) in plan)
         {
-            if (2*radius > _config.Width || 2*radius > _config.Height)
-                throw new InvalidOperationException(
-                    $"Объект {spawn.Type.Name} ({radius}) не помещается в карту " +
-                    $"{_config.Width}x{_config.Height}.");
-
             for (var i = 0; i < spawn.Count; i++)
             {
                 var position = FindFreePosition(radius, objects, random)
-                    ?? throw new InvalidOperationException(
-                        $"Не удалось разместить {spawn.Type.Name} #{i + 1} из {spawn.Count}: " +
-                        $"за {_config.MaxAttemptsPerObject} попыток не найдено свободное место.");
+                               ?? throw new InvalidOperationException(
+                                   $"Не удалось разместить {spawn.Type.Name} #{i + 1} из {spawn.Count}: " +
+                                   $"за {_config.MaxAttemptsPerObject} попыток не найдено свободное место.");
 
-                objects.Add(CreateInstance(spawn.Type, position));
+                objects.Add(CreateInstance(map, spawn.Type, position));
             }
         }
 
@@ -98,19 +104,16 @@ public class MapCreator
         return false;
     }
 
-    /// <summary>Создаёт пробный экземпляр, чтобы узнать размер типа до размещения.</summary>
-    private static float ProbeSize(Type type) => CreateInstance(type, Vector2.Zero).Radius;
-
-    private static GameObject CreateInstance(Type type, Vector2 position)
+    private GameObject CreateInstance(Map map, Type type, Vector2 position)
     {
         try
         {
-            return (GameObject)Activator.CreateInstance(type, position)!;
+            return _creators[type].Create(position, map);
         }
         catch (MissingMethodException)
         {
             throw new InvalidOperationException(
-                $"У типа {type.Name} нет публичного конструктора с единственным параметром Vector2 position.");
+                $"Не удалось создать объект типа {type.Name}");
         }
     }
 
@@ -131,5 +134,56 @@ public class MapCreator
                 throw new ArgumentException(
                     $"{spawn.Type.Name} должен быть неабстрактным наследником GameObject.", nameof(config));
         }
+    }
+}
+
+public interface ICreator<out T>
+{
+    public float MaxSize { get; }
+    public T Create(Vector2 position, Map map);
+}
+
+public class FrogCreator(int seed) : ICreator<Frog>
+{
+    private readonly Random _random = new(seed);
+    private int _frogId = 1;
+    private const float FrogRadius = 5;
+    private const float Dif = 4;
+
+    public float MaxSize => Dif + FrogRadius;
+
+    public Frog Create(Vector2 position, Map map)
+    {
+        return new Frog(_frogId++, position, FrogRadius + Dif * _random.NextSingle(), null);
+    }
+}
+
+public class LilyCreator(int seed) : ICreator<WaterLily>
+{
+    private int _lilyId = 1;
+    private readonly Random _random = new(seed);
+    private const float LilyRadius = 15;
+    private const float Dif = 4;
+
+    public float MaxSize => Dif + LilyRadius;
+
+    public WaterLily Create(Vector2 position, Map map)
+    {
+        return new WaterLily(_lilyId++, position, LilyRadius + Dif * _random.NextSingle());
+    }
+}
+
+public class FlyCreator(int seed) : ICreator<Fly>
+{
+    private int _flyId = 1;
+    private readonly Random _random = new(seed);
+    private const float FlyRadius = 2.5f;
+    private const float Dif = 0;
+
+    public float MaxSize => Dif + FlyRadius;
+
+    public Fly Create(Vector2 position, Map map)
+    {
+        return new Fly(_flyId++, position, FlyRadius + Dif * _random.NextSingle());
     }
 }

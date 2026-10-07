@@ -14,6 +14,7 @@ public sealed class WaterSplashSystem : ISimulationSystem
             foreach (var hittedObject in ctx.Map.ObjectsInCircle<IMovable>(splash.Position, splash.Radius))
             {
                 var dir = (hittedObject as GameObject)!.Position - splash.Position;
+                if (dir.LengthSquared() < 1e-6) continue;
                 hittedObject.AddImpulse(splash.Strength * Vector2.Normalize(dir));
             }
         }

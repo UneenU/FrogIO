@@ -12,10 +12,10 @@ public sealed class WaterSplash(int id, Vector2 position, WaterSplashSettings se
     public WaterSplashSettings Settings { get; } = settings;
     public int AgeTicks { get; private set; }
     public bool IsExpired => AgeTicks >= Settings.LifetimeTicks;
-    
+
     public float Strength
     {
-        get => Settings.MaxStrength / (AgeTicks+1); 
+        get => Settings.MaxStrength * (Settings.LifetimeTicks - AgeTicks) / Settings.LifetimeTicks;
     }
 
     /// <summary>Раз в тик: старит всплеск и расширяет круг. Возвращает true, когда время жизни вышло.</summary>
