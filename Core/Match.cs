@@ -1,5 +1,6 @@
 using Core.Commands;
 using Core.Events;
+using Server;
 
 namespace Core;
 
@@ -18,6 +19,7 @@ public class Match
  
     public Gamer[] Gamers { get; init; }
     public int Tick { get; private set; }
+    public string Id { get; }
 
     /// <param name="systems">Порядок в списке = порядок выполнения внутри тика (движение, потом приземление).</param>
     public Match(
@@ -34,7 +36,7 @@ public class Match
         _events = events;
     }
     
-    public void Step(Command[] userCommands)
+    public MatchState Step(Command[] userCommands)
     {
         var ctx = new SimulationContext(_map, Tick, _events);
  
@@ -46,5 +48,7 @@ public class Match
         _events.DispatchAll(ctx);
         _map.ApplyPendingChanges();
         Tick++;
+
+        return new();
     }
 }
