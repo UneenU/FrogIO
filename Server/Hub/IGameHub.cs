@@ -8,6 +8,9 @@ public interface IGameHub
     Task MatchStarted();
     Task MatchEnded(MatchResult result);
     Task LobbyWasClosed();
-    Task ReceiveChatMessage(string gamerId, string message);
+    Task ReceiveChatMessage(string message);
     Task PlayerReturnedInTheLobby(LobbyMember player);
+    Task PlayerReadyChanged(string playerId, bool isReady);
+    
+    Task TimeToStart(TimeSpan timeToStart);
 }
