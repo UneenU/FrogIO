@@ -6,22 +6,23 @@ public class Lobby
 {
     public string LobbyId { get; }
     public List<LobbyMember> Members { get; } = new();
-    // public bool IsStarted { get; set; } = false;
+    public string LobbyName { get; }
     public int MaxPlayers { get; }
     public bool IsFull => Members.Count == MaxPlayers;
-    public int? MatchId { get; set; }
+    public bool EveryoneIsReady => Members.All(member => member.IsReady);
     
-    private Lobby(string lobbyId, int maxPlayers)
+    private Lobby(string lobbyName, string lobbyId, int maxPlayers)
     {
         LobbyId = lobbyId;
+        LobbyName = lobbyName;
         MaxPlayers = maxPlayers;
     }
 
-    public static Lobby NewLobby(int maxPlayers)
+    public static Lobby NewLobby(string name, int maxPlayers)
     {
         if (maxPlayers <= 0) throw new ArgumentException(nameof(maxPlayers));
         var lobbyId = Guid.NewGuid().ToString();
-        return new Lobby(lobbyId, maxPlayers);
+        return new Lobby(name, lobbyId, maxPlayers);
     }
 
 }

@@ -2,11 +2,15 @@ namespace Server;
 
 public interface ILobbyRepository
 {
-    Lobby? GetLobbyById(string lobbyId);
-    bool SetUserLobby(string lobbyId, string userId);
-    void RemoveUserFromLobby(string lobbyId, string userId);
-    string? FindUserLobby(string userId);
-    IReadOnlyList<LobbyMember> GetLobbyMembers(string lobbyId);
-    void AddLobby(Lobby lobby);
+    Task<Lobby?> GetLobbyByIdAsync(string lobbyId);
+    Task<bool> SetLobbyMemberAsync(string lobbyId, LobbyMember member);
+    Task RemoveUserFromLobbyAsync(string lobbyId, string userId);
+    // сделать возвращаемым значением Lobby
+    Task<string?> FindUserLobbyAsync(string userId);
+    Task<IReadOnlyList<LobbyMember>> GetLobbyMembersAsync(string lobbyId);
+    Task AddLobbyAsync(Lobby lobby);
+    Task RemoveLobbyAsync(string lobbyId);
 
+    Task<List<Lobby>> GetLobbiesByNameAsync(string lobbyName);
+    Task<LobbyMember> GetLobbyMemberAsync(string lobbyId, string userId);
 }

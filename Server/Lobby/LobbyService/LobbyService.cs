@@ -2,35 +2,63 @@ namespace Server;
 
 public class LobbyService : ILobbyService
 {
+    private readonly ILogger<LobbyService> _logger;
     private readonly ILobbyRepository _lobbyRepository;
 
-    public LobbyService(ILobbyRepository lobbyRepository)
+    public LobbyService(ILogger<LobbyService> logger, ILobbyRepository lobbyRepository)
     {
+        _logger = logger;
         _lobbyRepository = lobbyRepository;
     }
 
-    public bool AddUserToLobby(string lobbyId, string userId)
+    public async Task<string> CreateLobby(string lobbyName, int maxPlayers)
     {
-        var lobby = _lobbyRepository.GetLobbyById(lobbyId);
-        var userLobby = _lobbyRepository.FindUserLobby(userId);
-        
+        var lobby = Lobby.NewLobby(lobbyName, maxPlayers);
+        await _lobbyRepository.AddLobbyAsync(lobby);
+        return lobby.LobbyId;
+    }
+
+    public async Task<bool> AddUserToLobby(string lobbyId, string userId)
+    {
+        var lobby = await _lobbyRepository.GetLobbyByIdAsync(lobbyId);
+        var userLobby = await _lobbyRepository.FindUserLobbyAsync(userId);
         if (userLobby is not null ||
             lobby is null ||
             lobby.Members.Any(p => p.UserId.ToString() == userId) ||
             lobby.IsFull) return false;
-        
-        _lobbyRepository.SetUserLobby(lobbyId, userId);
+
+        _logger.LogInformation($"user {userId} added to lobby {lobbyId}");
+        var lobbyMember = new LobbyMember(userId, userId);
+        await _lobbyRepository.SetLobbyMemberAsync(lobbyId, lobbyMember);
         return true;
     }
 
-    public void RemoveUserFromLobby(string lobbyId, string userId)
+    public async Task RemoveUserFromLobby(string lobbyId, string userId)
     {
         // лобби или пользователя может не существовать
-        _lobbyRepository.RemoveUserFromLobby(lobbyId, userId);
+        await _lobbyRepository.RemoveUserFromLobbyAsync(lobbyId, userId);
+        var lobby = await _lobbyRepository.GetLobbyByIdAsync(lobbyId);
+        if (lobby.Members.Count == 0) await CloseLobbyAsync(lobbyId);
     }
 
-    public MatchResult CloseLobby(string lobbyId, string userId)
+    public async Task<bool> CloseLobbyAsync(string lobbyId)
     {
-        throw new NotImplementedException();
+        var lobby = await _lobbyRepository.GetLobbyByIdAsync(lobbyId);
+        foreach (var member in lobby.Members)
+        {
+            await _lobbyRepository.RemoveUserFromLobbyAsync(lobbyId, member.UserId);
+        }
+        await _lobbyRepository.RemoveLobbyAsync(lobbyId);
+        
+        return true;
+    }
+
+    public async Task OnMembersReadyAsync(string lobbyId, string userId, bool ready, string heroId)
+    {
+        var member = await _lobbyRepository.GetLobbyMemberAsync(lobbyId, userId);
+        member.SetReady(ready);
+        member.SetChosenHero(heroId);
+        await _lobbyRepository.SetLobbyMemberAsync(lobbyId, member);
+        // var lobby = await _lobbyRepository.GetLobbyByIdAsync(lobbyId);
     }
 }

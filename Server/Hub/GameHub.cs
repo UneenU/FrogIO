@@ -10,95 +10,124 @@ public class GameHub : Hub<IGameHub>
     private readonly IConnectionManager _connectionManager;
     private readonly IMatchService _matchService;
     private readonly ILobbyRepository _lobbyRepository;
+    private readonly ILogger<GameHub> _logger;
 
     public GameHub(
         ILobbyService lobbyService,
         IConnectionManager connectionManager,
-        IMatchService matchService, ILobbyRepository lobbyRepository)
+        IMatchService matchService, ILobbyRepository lobbyRepository, ILogger<GameHub> logger)
     {
+        _logger = logger;
         _lobbyService = lobbyService;
         _connectionManager = connectionManager;
         _matchService = matchService;
         _lobbyRepository = lobbyRepository;
+
+        _logger.LogInformation("Hub created");
     }
 
-    public async Task JoinLobby(string lobbyId)
+    public async Task<LobbyState> JoinLobby(string lobbyId)
     {
         var playerId = _connectionManager.IdentifyUserByConnection(Context);
+        _logger.LogInformation($"player {playerId} joining lobby {lobbyId}");
 
-        // Проверяем, можно ли войти (через сервис)
-        var canJoin = _lobbyService.AddUserToLobby(lobbyId, playerId);
+        // Пытаемся добавить в лобби
+        var canJoin = await _lobbyService.AddUserToLobby(lobbyId, playerId);
         if (!canJoin) throw new HubException("Не удалось присоединиться к игре");
 
         await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId);
         // _connectionManager.MapConnectionToGame(gamerId, lobbyId);
 
-        //TODO: get user info somehow
-        var player = new LobbyMember(playerId, playerId);
+        var player = await _lobbyRepository.GetLobbyMemberAsync(lobbyId, playerId);
         await Clients.Group(lobbyId).PlayerJoinedTheLobby(player);
+
+        var members = await _lobbyRepository.GetLobbyMembersAsync(lobbyId);
+        return new LobbyState(lobbyId, playerId, 8, members);
+    }
+
+    public async Task SetReady(bool ready, string? heroId, string? mode)
+    {
+        var playerId = _connectionManager.IdentifyUserByConnection(Context);
+        var lobbyId = await _lobbyRepository.FindUserLobbyAsync(playerId);
+
+        await _lobbyService.OnMembersReadyAsync(lobbyId, playerId, ready, heroId);
+        
+        // поменять в самом лобби значение готовности пользователя
+        await Clients.Group(lobbyId).PlayerReadyChanged(playerId, ready);
     }
 
     public async Task LeaveLobby()
     {
         var playerId = _connectionManager.IdentifyUserByConnection(Context);
-        var lobbyId = _lobbyRepository.FindUserLobby(playerId);
+        var lobbyId = await _lobbyRepository.FindUserLobbyAsync(playerId);
+        _logger.LogInformation($"player {playerId} leaving lobby {lobbyId}");
 
-        if (lobbyId != null)
+        if (!string.IsNullOrEmpty(lobbyId))
         {
-            _lobbyService.RemoveUserFromLobby(lobbyId, playerId);
+            var player = await _lobbyRepository.GetLobbyMemberAsync(lobbyId, playerId);
+            await _lobbyService.RemoveUserFromLobby(lobbyId, playerId);
 
             // удалить все соединения пользователя, найдя их через IConnectionManager
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, lobbyId);
-
-            var player = new LobbyMember(playerId, playerId);
             await Clients.Group(lobbyId).PlayerLeftTheLobby(player);
         }
     }
 
+    // пока не проверяем
     public async Task HandleCommandAsync(Input input)
     {
+        _logger.Log(message: "Handling command", logLevel: LogLevel.Information);
         var playerId = _connectionManager.IdentifyUserByConnection(Context);
         _matchService.HandleUserInput(playerId, input);
     }
 
-    public async Task CloseLobbyAsync(string lobbyId)
-    {
-        var playerId = _connectionManager.IdentifyUserByConnection(Context);
-        var result = _lobbyService.CloseLobby(lobbyId, playerId);
-        await Clients.Group(lobbyId).LobbyWasClosed();
-    }
+    // public async Task CloseLobbyAsync(string lobbyId)
+    // {
+    //     var playerId = _connectionManager.IdentifyUserByConnection(Context);
+    //     _logger.LogInformation($"Closing lobby {lobbyId}");
+    //     
+    //     var result = _lobbyService.CloseLobbyAsync(lobbyId);
+    //     await Clients.Group(lobbyId).LobbyWasClosed();
+    // }
 
     public async Task StartMatch()
     {
         var playerId = _connectionManager.IdentifyUserByConnection(Context);
-        var lobbyId = _lobbyRepository.FindUserLobby(playerId);
-        var players = _lobbyRepository.GetLobbyMembers(lobbyId).Select(m => m.UserId).ToArray();
+        var lobbyId = await _lobbyRepository.FindUserLobbyAsync(playerId);
+        _logger.LogInformation($"player {playerId} starting match {lobbyId}");
+        
+        var players = (await _lobbyRepository.GetLobbyMembersAsync(lobbyId)).Select(m => m.UserId).ToArray();
         var matchId = _matchService.StartMatch(players);
-
+    
         foreach (var player in players)
         {
             // убрать пользователя из группы по лобби, добавить в группу по матчу
         }
-
+    
         await Clients.Group(matchId).MatchStarted();
     }
 
     public override async Task OnConnectedAsync()
     {
         var playerId = _connectionManager.IdentifyUserByConnection(Context);
-        var lobbyId = _lobbyRepository.FindUserLobby(playerId);
+        _logger.LogInformation($"player {playerId} connecting to hub");
+
+        //TODO: добавить в группу по матчу, если матч уже начался
+
+        var lobbyId = await _lobbyRepository.FindUserLobbyAsync(playerId);
         if (lobbyId != null)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId);
 
-            //TODO: get user info somehow
-            var player = new LobbyMember(playerId, playerId);
+            var player = await _lobbyRepository.GetLobbyMemberAsync(lobbyId, playerId);
             await Clients.Group(lobbyId).PlayerReturnedInTheLobby(player);
         }
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        await base.OnDisconnectedAsync(exception);
+        await LeaveLobby();
     }
 }
+
+public record LobbyState(string LobbyId, string SelfId, int MaxPlayers, IReadOnlyList<LobbyMember> Members);
