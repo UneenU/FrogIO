@@ -12,25 +12,27 @@ public interface IEventSink
 
 public class Match
 {
-    private readonly Map _map;
+    
+    // TODO: вернуть в private
+    public readonly Map _map;
     private readonly ICommandHandler _commandHandler;
     private readonly IReadOnlyList<ISimulationSystem> _systems;
     private readonly EventDispatcher _events;
  
-    public Gamer[] Gamers { get; init; }
+    public Player[] Players { get; init; }
     public int Tick { get; private set; }
     public string Id { get; }
 
     /// <param name="systems">Порядок в списке = порядок выполнения внутри тика (движение, потом приземление).</param>
     public Match(
         Map map,
-        Gamer[] gamers,
+        Player[] players,
         ICommandHandler commandHandler,
         IReadOnlyList<ISimulationSystem> systems,
         EventDispatcher events)
     {
         _map = map;
-        Gamers = gamers;
+        Players = players;
         _commandHandler = commandHandler;
         _systems = systems;
         _events = events;

@@ -91,7 +91,7 @@ public sealed class ControlSystem(
     }
 
     /// <summary>Что значит ввод для конкретного вида тела. Новое животное = новая ветка.</summary>
-    private static void Apply(GameObject body, ControllerInput input, SimulationContext ctx)
+    private static void Apply(IControllable body, ControllerInput input, SimulationContext ctx)
     {
         switch (body)
         {
