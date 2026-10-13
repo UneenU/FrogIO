@@ -1,7 +1,9 @@
 using System.Numerics;
-using Core.Simulation;
+using Core.Commands;
+using Core.Objects;
+using Core.Objects.Abstraction;
 
-namespace Core.Commands;
+namespace Core.Systems;
 
 public sealed class ControlSystem(ControllerBindings bindings) : ICommandHandler
 {

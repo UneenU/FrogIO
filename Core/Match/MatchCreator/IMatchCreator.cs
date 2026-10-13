@@ -1,6 +1,4 @@
-using Core;
-
-namespace Core.Match;
+namespace Core.Match.MatchCreator;
 
 public interface IMatchCreator
 {

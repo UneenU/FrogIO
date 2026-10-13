@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace Server;
+namespace Server.Lobby.LobbyRepository;
 
 public class LobbyRepository : ILobbyRepository
 {

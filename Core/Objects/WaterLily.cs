@@ -1,6 +1,7 @@
 using System.Numerics;
+using Core.Objects.Abstraction;
 
-namespace Core;
+namespace Core.Objects;
 
 public class WaterLily(int id, Vector2 position, float radius) : GameObject(id, position, radius), IMovable, ICollidable
 {

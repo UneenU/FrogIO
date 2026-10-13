@@ -1,7 +1,8 @@
-using Core;
+using Core.Match;
+using Server.Lobby;
 using Server.Match;
 
-namespace Server;
+namespace Server.Hub;
 
 public interface IGameHub
 {

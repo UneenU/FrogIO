@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 
-namespace Server;
+namespace Server.ConnectionManager;
 
 public interface IConnectionManager
 {

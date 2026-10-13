@@ -1,4 +1,6 @@
-namespace Core;
+using Core.Objects;
+
+namespace Core.Match;
 
 /// <summary>Снимок мира после тика. Это DTO для клиентов: ссылок на объекты ядра в нём нет.</summary>
 public record MatchState(

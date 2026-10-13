@@ -1,6 +1,4 @@
-using Core;
-
-namespace Server;
+namespace Server.Lobby;
 
 public class Lobby
 {

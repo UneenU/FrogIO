@@ -1,6 +1,8 @@
 using Core.Events;
+using Core.Objects;
+using Core.Systems.Interfaces;
 
-namespace Core;
+namespace Core.Systems;
 
 /// <summary>
 /// Завершение прыжков. Идёт после MovementSystem, поэтому лягушка уже в конечной точке.

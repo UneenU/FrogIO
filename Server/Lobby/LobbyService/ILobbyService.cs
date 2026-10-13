@@ -1,4 +1,4 @@
-namespace Server;
+namespace Server.Lobby.LobbyService;
 
 public interface ILobbyService
 {

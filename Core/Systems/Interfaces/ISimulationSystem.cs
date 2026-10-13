@@ -1,4 +1,4 @@
-namespace Core;
+namespace Core.Systems.Interfaces;
 
 public interface ISimulationSystem
 {

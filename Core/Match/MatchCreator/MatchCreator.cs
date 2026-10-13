@@ -1,11 +1,12 @@
 using System.Numerics;
-using Core;
 using Core.Commands;
 using Core.Events;
-using Core.Simulation;
+using Core.Map;
+using Core.Objects;
 using Core.Systems;
+using Core.Systems.Interfaces;
 
-namespace Core.Match;
+namespace Core.Match.MatchCreator;
 
 public class MatchCreator : IMatchCreator
 {

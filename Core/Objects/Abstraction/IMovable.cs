@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Core;
+namespace Core.Objects.Abstraction;
 
 public interface IMovable
 {

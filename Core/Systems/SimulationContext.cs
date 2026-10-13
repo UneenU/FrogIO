@@ -1,5 +1,5 @@
 using Core.Events;
 
-namespace Core;
+namespace Core.Systems;
 
-public readonly record struct SimulationContext(Map Map, int Tick, IEventSink Events);
+public readonly record struct SimulationContext(Map.Map Map, int Tick, IEventSink Events);

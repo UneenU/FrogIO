@@ -1,4 +1,4 @@
-namespace Core;
+namespace Core.Objects.Abstraction;
 
 public interface IControllable
 {

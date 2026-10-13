@@ -1,7 +1,8 @@
 using System.Numerics;
-using System.Runtime.CompilerServices;
+using Core.Objects;
+using Core.Objects.Abstraction;
 
-namespace Core;
+namespace Core.Map;
 
 public record ObjectSpawn(Type Type, int Count);
 
@@ -43,11 +44,11 @@ public class MapCreator
         _creators[typeof(Fly)] = new FlyCreator(seed);
     }
 
-    public Map Create()
+    public Core.Map.Map Create()
     {
         var random = new Random(_seed);
         var objects = new List<GameObject>();
-        Map map = new Map(_config.Width, _config.Height, objects);
+        Core.Map.Map map = new Core.Map.Map(_config.Width, _config.Height, objects);
 
         var plan = _config.Spawns
             .Select(s => (s, _creators[s.Type].MaxSize))
@@ -66,7 +67,7 @@ public class MapCreator
             }
         }
 
-        return new Map(_config.Width, _config.Height, objects);
+        return new Core.Map.Map(_config.Width, _config.Height, objects);
     }
 
     private Vector2? FindFreePosition(float radius, List<GameObject> placed, Random random)
@@ -104,7 +105,7 @@ public class MapCreator
         return false;
     }
 
-    private GameObject CreateInstance(Map map, Type type, Vector2 position)
+    private GameObject CreateInstance(Core.Map.Map map, Type type, Vector2 position)
     {
         try
         {
@@ -140,7 +141,7 @@ public class MapCreator
 public interface ICreator<out T>
 {
     public float MaxSize { get; }
-    public T Create(Vector2 position, Map map);
+    public T Create(Vector2 position, Core.Map.Map map);
 }
 
 public class FrogCreator(int seed) : ICreator<Frog>
@@ -152,7 +153,7 @@ public class FrogCreator(int seed) : ICreator<Frog>
 
     public float MaxSize => Dif + FrogRadius;
 
-    public Frog Create(Vector2 position, Map map)
+    public Frog Create(Vector2 position, Core.Map.Map map)
     {
         return new Frog(_frogId++, position, FrogRadius + Dif * _random.NextSingle(), null);
     }
@@ -167,7 +168,7 @@ public class LilyCreator(int seed) : ICreator<WaterLily>
 
     public float MaxSize => Dif + LilyRadius;
 
-    public WaterLily Create(Vector2 position, Map map)
+    public WaterLily Create(Vector2 position, Core.Map.Map map)
     {
         return new WaterLily(_lilyId++, position, LilyRadius + Dif * _random.NextSingle());
     }
@@ -182,7 +183,7 @@ public class FlyCreator(int seed) : ICreator<Fly>
 
     public float MaxSize => Dif + FlyRadius;
 
-    public Fly Create(Vector2 position, Map map)
+    public Fly Create(Vector2 position, Core.Map.Map map)
     {
         return new Fly(_flyId++, position, FlyRadius + Dif * _random.NextSingle());
     }

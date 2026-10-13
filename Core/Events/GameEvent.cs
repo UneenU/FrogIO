@@ -1,3 +1,6 @@
+using Core.Objects;
+using Core.Objects.Abstraction;
+
 namespace Core.Events;
 
 public class GameEvent

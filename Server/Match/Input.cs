@@ -1,4 +1,4 @@
-namespace Server;
+namespace Server.Match;
 
 public record Input
 {

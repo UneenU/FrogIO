@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Server;
+namespace Server.ConnectionManager;
 
 public class ConnectionManager : IConnectionManager
 {

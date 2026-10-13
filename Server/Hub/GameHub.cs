@@ -1,8 +1,13 @@
-using Core.Match;
 using Microsoft.AspNetCore.SignalR;
-using Server.MatchRuntime;
+using Server.ConnectionManager;
+using Server.Lobby;
+using Server.Lobby.LobbyRepository;
+using Server.Lobby.LobbyService;
+using Server.Match;
+using Server.Match.MatchService;
+using PlayerInfo = Core.Match.MatchCreator.PlayerInfo;
 
-namespace Server;
+namespace Server.Hub;
 
 public class GameHub : Hub<IGameHub>
 {

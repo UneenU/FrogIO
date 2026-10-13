@@ -1,5 +1,7 @@
 using Core.Commands;
 using Core.Events;
+using Core.Systems;
+using Core.Systems.Interfaces;
 
 namespace Core.Match;
 
@@ -7,7 +9,7 @@ public class Match
 {
     
     // TODO: вернуть в private
-    public readonly Map _map;
+    public readonly Map.Map _map;
     private readonly ICommandHandler _commandHandler;
     private readonly AiInputSystem _aiSystem;
     private readonly IReadOnlyList<ISimulationSystem> _systems;
@@ -25,7 +27,7 @@ public class Match
     /// <param name="systems">Порядок в списке = порядок выполнения внутри тика (движение, потом приземление).</param>
     public Match(
         string id,
-        Map map,
+        Map.Map map,
         Player[] players,
         ICommandHandler commandHandler,
         AiInputSystem aiSystem,

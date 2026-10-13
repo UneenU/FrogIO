@@ -1,4 +1,4 @@
-namespace Core;
+namespace Core.Match;
 
 /// <param name="TickRate">Тиков в секунду: по нему считаются Time и TimeLeft в MatchState.</param>
 /// <param name="DurationSeconds">Длительность матча в секундах.</param>

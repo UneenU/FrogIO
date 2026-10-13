@@ -1,6 +1,7 @@
 using System.Numerics;
+using Core.Objects.Abstraction;
 
-namespace Core;
+namespace Core.Objects;
 
 public sealed class Fly : GameObject, IMovable, IControllable
 {

@@ -1,4 +1,4 @@
-namespace Server;
+namespace Server.Lobby;
 
 public class LobbyMember(int userId, string nickname)
 {

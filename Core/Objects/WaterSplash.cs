@@ -1,6 +1,7 @@
 using System.Numerics;
+using Core.Objects.Abstraction;
 
-namespace Core;
+namespace Core.Objects;
 
 /// <summary>
 /// Круг на воде, расширяющийся от центра. Не IMovable: позиция не меняется, меняется только радиус.

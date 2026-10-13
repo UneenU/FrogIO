@@ -1,5 +1,7 @@
 using System.Numerics;
 using Core.Events;
+using Core.Objects.Abstraction;
+using Core.Systems.Interfaces;
 
 namespace Core.Systems;
 

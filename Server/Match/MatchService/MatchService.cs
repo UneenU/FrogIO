@@ -1,13 +1,11 @@
 using System.Collections.Concurrent;
-using Core;
 using Core.Commands;
-using Core.Match;
+using Core.Match.MatchCreator;
+using Core.Objects.Abstraction;
 using Microsoft.AspNetCore.SignalR;
-using Server.Match;
-using Server.MatchRuntime;
-using PlayerInfo = Core.Match.PlayerInfo;
+using Server.Hub;
 
-namespace Server.SessionManager;
+namespace Server.Match.MatchService;
 
 public class MatchService : IMatchService
 {
@@ -27,7 +25,7 @@ public class MatchService : IMatchService
         _matchRepository = matchRepository;
     }
 
-    public (MatchInit matchInit, string matchId) StartMatch(PlayerInfo[] playersInfo)
+    public (MatchInit matchInit, string matchId) StartMatch(Core.Match.MatchCreator.PlayerInfo[] playersInfo)
     {
         var match = _matchCreator.CreateMatch(playersInfo);
         var runtime = new MatchRuntime(match, _hubContext, _logger);

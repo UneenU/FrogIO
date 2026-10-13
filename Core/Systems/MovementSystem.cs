@@ -1,7 +1,9 @@
 using System.Numerics;
-using Core.Events;
+using Core.Objects;
+using Core.Objects.Abstraction;
+using Core.Systems.Interfaces;
 
-namespace Core;
+namespace Core.Systems;
 
 /// <summary>
 /// Кинематика: смещение = Velocity (единицы за тик), урезанное ограничениями.

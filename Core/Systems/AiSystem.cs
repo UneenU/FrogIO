@@ -1,4 +1,6 @@
-namespace Core.Commands;
+using Core.Commands;
+
+namespace Core.Systems;
 
 public class AiInputSystem(List<IAiController> aiControllers, ControllerBindings bindings)
 {

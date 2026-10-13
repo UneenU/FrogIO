@@ -1,9 +1,9 @@
 using System.Threading.Channels;
-
 using Core.Commands;
 using Microsoft.AspNetCore.SignalR;
+using Server.Hub;
 
-namespace Server.SessionManager;
+namespace Server.Match;
 
 public class MatchRuntime : IAsyncDisposable
 {

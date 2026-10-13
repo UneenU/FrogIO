@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Core.Objects.Abstraction;
 
 namespace Core.Commands;
 

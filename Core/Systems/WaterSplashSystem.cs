@@ -1,6 +1,9 @@
 using System.Numerics;
+using Core.Objects;
+using Core.Objects.Abstraction;
+using Core.Systems.Interfaces;
 
-namespace Core.Simulation;
+namespace Core.Systems;
 
 /// <summary>Расширяет всплески и убирает истёкшие. Порядок относительно других систем не важен.</summary>
 public sealed class WaterSplashSystem : ISimulationSystem

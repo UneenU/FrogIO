@@ -1,4 +1,6 @@
-namespace Server;
+using Server.Lobby.LobbyRepository;
+
+namespace Server.Lobby.LobbyService;
 
 public class LobbyService : ILobbyService
 {
