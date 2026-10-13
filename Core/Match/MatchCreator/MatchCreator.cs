@@ -10,12 +10,12 @@ namespace Match;
 public class MatchCreator : IMatchCreator
 {
     private readonly MapCreator _mapCreator;
-    private readonly List<PlayerDto> _playersDtos;
+    private readonly List<PlayerInfo> _playersDtos;
     private readonly Random _random;
     private readonly AiControllerFactory _factory;
     private int _flyCount = 100;
 
-    public MatchCreator(MapCreator mapCreator, List<PlayerDto> playersDtos, int seed, AiControllerFactory factory)
+    public MatchCreator(MapCreator mapCreator, List<PlayerInfo> playersDtos, int seed, AiControllerFactory factory)
     {
         _mapCreator = mapCreator;
         _playersDtos = playersDtos;
@@ -45,10 +45,11 @@ public class MatchCreator : IMatchCreator
             bindings.Bind(aiController.ControllerId, fly);
             aiControllers.Add(aiController);
         }
+        var aiSystem = new AiInputSystem(aiControllers, bindings);
 
         // добавление лягушек
         // TODO: вынести в отдельный метод
-        int controllerId = 1;
+        int controllerId = 1000;
         foreach (var playerDto in _playersDtos)
         {
             // создание лягушки по свойству chosenFrog
@@ -57,12 +58,12 @@ public class MatchCreator : IMatchCreator
             map.Add(frog);
 
             bindings.Bind(controllerId, frog);
-            var player = new Player(playerDto.playerId, frog);
+            var player = new Player(playerDto.playerId, frog, controllerId);
             players.Add(player);
             controllerId++;
         }
 
-        var control = new ControlSystem(bindings, aiControllers);
+        var control = new ControlSystem(bindings);
 
         // Собыийная модель
         var events = new EventDispatcher();
@@ -81,10 +82,10 @@ public class MatchCreator : IMatchCreator
             new WaterSplashSystem(),
         ];
 
-        var match = new Core.Match(map, players.ToArray(), control, systems, events);
+        var match = new Core.Match(map, players.ToArray(), control, aiSystem, systems, events);
 
         return match;
     }
 }
 
-public record PlayerDto(int playerId, string ChosenFrog);
+public record PlayerInfo(int playerId, string ChosenFrog);

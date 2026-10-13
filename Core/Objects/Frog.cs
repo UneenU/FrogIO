@@ -1,5 +1,4 @@
 using System.Numerics;
-using Core.Events;
 
 namespace Core;
 
@@ -23,6 +22,7 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
     private readonly Tongue _tongue;
 
     public Vector2 TonguePosition => Position + _tongue.RelativeTipPosition;
+    public TongueState TongueState => _tongue.State;
 
     private float JumpSpeed { get; } = 1.5f;
     public float MaxJumpDistance { get; } = 100f;
@@ -47,7 +47,6 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
         Lily = lily;
         _tongue = new Tongue(80, 3.5f);
     }
-
 
     public bool IsAlive => !State.HasFlag(FrogState.Dead);
     public bool IsInAir => State.HasFlag(FrogState.Jumping);
@@ -132,13 +131,11 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
     {
         var dist = Math.Clamp(distance, 0f, _tongue.MaxLength);
 
-        Console.WriteLine($"{IsAvailable}; {tick} : {NextAttackAvailableTick}; {direction}; {dist}");
         if (!IsAvailable ||
             tick < NextAttackAvailableTick ||
             direction.LengthSquared() < Epsilon ||
             dist < 1e-3f) return false;
         
-        Console.WriteLine(")))))))))))))))))))))");
         Aim(direction);
         StopMotion();
         NextAttackAvailableTick = tick + AttackCooldownTicks;
@@ -150,7 +147,9 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
     public bool AdvanceAttack(Fly[] caughtFlies)
     {
         if (!IsAttacking) return false;
-        _tongue.CaughtFlies.AddRange(caughtFlies);
+        foreach (var fly in caughtFlies)
+            if (!_tongue.CaughtFlies.Contains(fly))
+                _tongue.CaughtFlies.Add(fly);
 
         if (_tongue.CaughtFlies.Count > 0 || _tongue.RelativeTipPosition.Length() >= _tongue.MaxLength - Epsilon)
             _tongue.State = TongueState.Returning;
@@ -161,7 +160,6 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
 
         _tongue.RelativeTipPosition = Vector2.Normalize(direction) * newTongueLength;
         
-        Console.WriteLine($"{TonguePosition}, {delta}, {direction}, {newTongueLength}");
         
         Aim(direction);
 
@@ -220,5 +218,5 @@ public class Tongue(float length, float speed)
     public float Speed { get; set; } = speed;
     public Vector2 RelativeTipPosition { get; set; } = Vector2.Zero;
     public List<Fly> CaughtFlies { get; } = [];
-    public TongueState State { get; set; }
+    public TongueState State { get; set; } = TongueState.InMouth;
 }

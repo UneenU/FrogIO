@@ -38,7 +38,7 @@ public class FlyAiController : IAiController
             _retargetAtTick = tick + RetargetEveryTicks;
         }
 
-        return new Command(ControllerId, ++_seq, Target, CommandButtons.Move);
+        return new Command(ControllerId, Target, CommandButtons.Move);
     }
 
     private Vector2 ChooseTarget()
@@ -81,7 +81,7 @@ public class FrogAiController : IAiController
             _retargetAtTick = tick + RetargetEveryTicks;
         }
 
-        return new Command(ControllerId, ++_seq, Target ?? frog.Position, CommandButtons.Move);
+        return new Command(ControllerId, Target ?? frog.Position, CommandButtons.Move);
     }
 
     private Vector2 ChooseTarget(Map map, Frog frog)
