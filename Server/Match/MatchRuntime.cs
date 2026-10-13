@@ -7,19 +7,19 @@ namespace Server.SessionManager;
 
 public class MatchRuntime : IAsyncDisposable
 {
-    private readonly Core.Match _match;
+    private readonly Core.Match.Match _match;
     private readonly IHubContext<GameHub, IGameHub> _hubContext;
     private readonly ILogger _logger;
     private readonly CancellationTokenSource _cts = new();
     private Task? _loopTask;
-    private readonly Channel<(string, Command)> _commands = Channel.CreateUnbounded<(string, Command)>();
+    private readonly Channel<(int, Command)> _commands = Channel.CreateUnbounded<(int, Command)>();
 
 
     private static readonly TimeSpan TickRate = TimeSpan.FromMilliseconds(1000.0 / 60.0);
-    private const int SendEveryNTicks = 3;
+    private const int SendEveryNTicks = 1;
 
     public MatchRuntime(
-        Core.Match match,
+        Core.Match.Match match,
         IHubContext<GameHub, IGameHub> hubContext,
         ILogger logger)
     {
@@ -28,15 +28,15 @@ public class MatchRuntime : IAsyncDisposable
         _logger = logger;
     }
 
-    public void Enqueue(string playerId, Command command)
+    public void Enqueue(int playerId, Command command)
     {
         if (!_commands.Writer.TryWrite((playerId, command)))
             _logger.LogWarning("Очередь команд матча {Id} переполнена", _match.Id);
     }
 
-    private List<(string, Command)> DrainCommands()
+    private List<(int, Command)> DrainCommands()
     {
-        var list = new List<(string, Command)>();
+        var list = new List<(int, Command)>();
         while (_commands.Reader.TryRead(out var item))
             list.Add(item);
         return list;
@@ -53,6 +53,7 @@ public class MatchRuntime : IAsyncDisposable
         {
             while (await timer.WaitForNextTickAsync(_cts.Token))
             {
+                _logger.LogInformation($"match is running, tick {tick}");
                 var commands = DrainCommands().Select(x => x.Item2).ToArray();
                 var state = _match.Step(commands);
                 tick++;

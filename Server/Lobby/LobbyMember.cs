@@ -1,8 +1,8 @@
 namespace Server;
 
-public class LobbyMember(string userId, string nickname)
+public class LobbyMember(int userId, string nickname)
 {
-    public string UserId { get; } = userId;
+    public int UserId { get; } = userId;
     public string Nickname { get; } = nickname;
     public bool IsReady { get; private set; }
     public string? ChosenHero { get; private set; }

@@ -18,22 +18,22 @@ public class LobbyService : ILobbyService
         return lobby.LobbyId;
     }
 
-    public async Task<bool> AddUserToLobby(string lobbyId, string userId)
+    public async Task<bool> AddUserToLobby(string lobbyId, int userId)
     {
         var lobby = await _lobbyRepository.GetLobbyByIdAsync(lobbyId);
         var userLobby = await _lobbyRepository.FindUserLobbyAsync(userId);
         if (userLobby is not null ||
             lobby is null ||
-            lobby.Members.Any(p => p.UserId.ToString() == userId) ||
+            lobby.Members.Any(p => p.UserId == userId) ||
             lobby.IsFull) return false;
 
         _logger.LogInformation($"user {userId} added to lobby {lobbyId}");
-        var lobbyMember = new LobbyMember(userId, userId);
+        var lobbyMember = new LobbyMember(userId, userId.ToString());
         await _lobbyRepository.SetLobbyMemberAsync(lobbyId, lobbyMember);
         return true;
     }
 
-    public async Task RemoveUserFromLobby(string lobbyId, string userId)
+    public async Task RemoveUserFromLobby(string lobbyId, int userId)
     {
         // лобби или пользователя может не существовать
         await _lobbyRepository.RemoveUserFromLobbyAsync(lobbyId, userId);
@@ -53,7 +53,7 @@ public class LobbyService : ILobbyService
         return true;
     }
 
-    public async Task OnMembersReadyAsync(string lobbyId, string userId, bool ready, string heroId)
+    public async Task OnMembersReadyAsync(string lobbyId, int userId, bool ready, string heroId)
     {
         var member = await _lobbyRepository.GetLobbyMemberAsync(lobbyId, userId);
         member.SetReady(ready);

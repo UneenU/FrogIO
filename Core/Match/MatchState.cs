@@ -10,9 +10,9 @@ public record MatchState(
     FlyState[] Flies,
     PlayerScore[] Scores);
 
-public record PadState(int Id, float X, float Y);
+public record PadState(int Id, float X, float Y, float Radius);
 
-public record FlyState(int Id, float X, float Y, float Angle);
+public record FlyState(int Id, float X, float Y, float Radius, float Angle);
 
 /// <param name="Angle">Куда смотрит лягушка, радианы: Atan2(Facing.Y, Facing.X).</param>
 /// <param name="State">Флаги состояния ядра (Core.FrogState), например Sitting | Attacking.</param>
@@ -21,9 +21,12 @@ public record FrogInfo(
     int Id,
     float X,
     float Y,
+    float Radius,
     float Angle,
     FrogState State,
     int? PadId,
+    float TongueX,
+    float TunguqY,
     TongueState Tongue);
 
 public record PlayerScore(int PlayerId, int Score);

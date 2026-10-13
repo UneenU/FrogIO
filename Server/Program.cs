@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Core;
-using Match;
+using Core.Commands;
+using Core.Match;
 using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.AspNetCore.SignalR;
 using Server;
@@ -12,9 +13,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSignalR(o => o.EnableDetailedErrors = true);
 builder.Services.AddSingleton<ILobbyRepository, LobbyRepository>();
 builder.Services.AddSingleton<ILobbyService, LobbyService>();
-builder.Services.AddScoped<IMatchService, MatchService>();
-builder.Services.AddScoped<IConnectionManager, ConnectionManager>();
-builder.Services.AddScoped<IMatchCreator, MatchCreator>();
+builder.Services.AddSingleton<MapCreator>(provider =>
+{
+    MapConfig config = new MapConfig(400, 300, [new ObjectSpawn(typeof(WaterLily),   30)]); 
+    return new MapCreator(config, 42);
+});
+builder.Services.AddSingleton<IMatchService, MatchService>();
+builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
+builder.Services.AddSingleton<IMatchCreator>(provider =>
+{
+    var mapCreator = provider.GetService<MapCreator>();
+    return new MatchCreator(mapCreator, 42, new AiControllerFactory());
+});
 builder.Services.AddSingleton<IMatchRepository, MatchRepository>();
 builder.Services.AddSingleton<IHeroCatalog, HeroCatalog>();
 builder.Logging.AddConsole();  

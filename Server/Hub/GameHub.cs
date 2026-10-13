@@ -1,4 +1,4 @@
-using Core.Commands;
+using Core.Match;
 using Microsoft.AspNetCore.SignalR;
 using Server.MatchRuntime;
 
@@ -96,15 +96,18 @@ public class GameHub : Hub<IGameHub>
         var lobbyId = await _lobbyRepository.FindUserLobbyAsync(playerId);
         _logger.LogInformation($"player {playerId} starting match {lobbyId}");
         
-        var players = (await _lobbyRepository.GetLobbyMembersAsync(lobbyId)).Select(m => m.UserId).ToArray();
-        var matchId = _matchService.StartMatch(players);
+        var players = (await _lobbyRepository.GetLobbyMembersAsync(lobbyId))
+            .Select(m => new PlayerInfo(m.UserId, m.ChosenHero))
+            .ToArray();
+        var (initState, matchId) = _matchService.StartMatch(players);
+        await Clients.Group(lobbyId).MatchStarted(initState);
     
         foreach (var player in players)
         {
+            var connectionId = _connectionManager.GetConnectionId(player.playerId);
+            await Groups.AddToGroupAsync(connectionId, matchId);
             // убрать пользователя из группы по лобби, добавить в группу по матчу
         }
-    
-        await Clients.Group(matchId).MatchStarted();
     }
 
     public override async Task OnConnectedAsync()
@@ -130,4 +133,4 @@ public class GameHub : Hub<IGameHub>
     }
 }
 
-public record LobbyState(string LobbyId, string SelfId, int MaxPlayers, IReadOnlyList<LobbyMember> Members);
+public record LobbyState(string LobbyId, int SelfId, int MaxPlayers, IReadOnlyList<LobbyMember> Members);

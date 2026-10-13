@@ -8,7 +8,7 @@ public class LobbyRepository : ILobbyRepository
     private readonly ConcurrentDictionary<string, Lobby> _lobbies = new();
 
     // Быстрый маппинг: UserId -> LobbyId, чтобы не искать перебором
-    private readonly ConcurrentDictionary<string, string> _userLobbyMap = new();
+    private readonly ConcurrentDictionary<int, string> _userLobbyMap = new();
 
     public async Task AddLobbyAsync(Lobby lobby)
     {
@@ -30,7 +30,7 @@ public class LobbyRepository : ILobbyRepository
         }
     }
 
-    public async Task<LobbyMember> GetLobbyMemberAsync(string lobbyId, string userId)
+    public async Task<LobbyMember> GetLobbyMemberAsync(string lobbyId, int userId)
     {
         return (await GetLobbyMembersAsync(lobbyId)).First(l => l.UserId == userId);
     }
@@ -43,10 +43,8 @@ public class LobbyRepository : ILobbyRepository
         return lobby;
     }
 
-    public async Task<string?> FindUserLobbyAsync(string userId)
+    public async Task<string?> FindUserLobbyAsync(int userId)
     {
-        if (string.IsNullOrEmpty(userId)) return null;
-
         _userLobbyMap.TryGetValue(userId, out var lobbyId);
         return lobbyId;
     }
@@ -54,7 +52,7 @@ public class LobbyRepository : ILobbyRepository
     public async Task<bool> SetLobbyMemberAsync(string lobbyId, LobbyMember member)
     {
         var userId = member.UserId;
-        if (string.IsNullOrEmpty(lobbyId) || string.IsNullOrEmpty(userId)) return false;
+        if (string.IsNullOrEmpty(lobbyId)) return false;
         if (!_lobbies.TryGetValue(lobbyId, out var lobby)) return false;
 
         // Блокируем конкретное лобби, чтобы избежать race condition при проверке IsFull
@@ -73,9 +71,9 @@ public class LobbyRepository : ILobbyRepository
         }
     }
 
-    public async Task RemoveUserFromLobbyAsync(string lobbyId, string userId)
+    public async Task RemoveUserFromLobbyAsync(string lobbyId, int userId)
     {
-        if (string.IsNullOrEmpty(lobbyId) || string.IsNullOrEmpty(userId)) return;
+        if (string.IsNullOrEmpty(lobbyId)) return;
         if (!_lobbies.TryGetValue(lobbyId, out var lobby)) return;
 
         lock (lobby)
