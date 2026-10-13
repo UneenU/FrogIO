@@ -6,10 +6,10 @@ namespace Core.Map;
 
 public record ObjectSpawn(Type Type, int Count);
 
-public class MapConfig
+public class MapConfig(float width, float height, IReadOnlyList<ObjectSpawn> spawns)
 {
-    public float Width { get; init; }
-    public float Height { get; init; }
+    public float Width { get; init; } = width;
+    public float Height { get; init; } = height;
 
     /// <summary>Минимальный зазор между объектами.</summary>
     public float MinGap { get; init; } = 5f;
@@ -17,14 +17,7 @@ public class MapConfig
     /// <summary>Сколько случайных позиций пробовать для одного объекта.</summary>
     public int MaxAttemptsPerObject { get; init; } = 100;
 
-    public IReadOnlyList<ObjectSpawn> Spawns { get; init; } = [];
-
-    public MapConfig(float width, float height, IReadOnlyList<ObjectSpawn> spawns)
-    {
-        Width = width;
-        Height = height;
-        Spawns = spawns;
-    }
+    public IReadOnlyList<ObjectSpawn> Spawns { get; init; } = spawns;
 }
 
 public class MapCreator
@@ -36,19 +29,24 @@ public class MapCreator
     public MapCreator(MapConfig config, int seed)
     {
         ArgumentNullException.ThrowIfNull(config);
-        Validate(config);
         _config = config;
         _seed = seed;
-        _creators[typeof(Frog)] = new FrogCreator(seed);
-        _creators[typeof(WaterLily)] = new LilyCreator(seed);
-        _creators[typeof(Fly)] = new FlyCreator(seed);
+        RegisterCreators();
+        Validate(config);
     }
 
-    public Core.Map.Map Create()
+    private void RegisterCreators()
+    {
+        _creators[typeof(Frog)] = new FrogCreator(_seed);
+        _creators[typeof(WaterLily)] = new LilyCreator(_seed);
+        _creators[typeof(Fly)] = new FlyCreator(_seed);
+    }
+
+    public Map Create()
     {
         var random = new Random(_seed);
         var objects = new List<GameObject>();
-        Core.Map.Map map = new Core.Map.Map(_config.Width, _config.Height, objects);
+        Map map = new Map(_config.Width, _config.Height, objects);
 
         var plan = _config.Spawns
             .Select(s => (s, _creators[s.Type].MaxSize))
@@ -105,20 +103,12 @@ public class MapCreator
         return false;
     }
 
-    private GameObject CreateInstance(Core.Map.Map map, Type type, Vector2 position)
+    private GameObject CreateInstance(Map map, Type type, Vector2 position)
     {
-        try
-        {
-            return _creators[type].Create(position, map);
-        }
-        catch (MissingMethodException)
-        {
-            throw new InvalidOperationException(
-                $"Не удалось создать объект типа {type.Name}");
-        }
+        return _creators[type].Create(position, map);
     }
 
-    private static void Validate(MapConfig config)
+    private void Validate(MapConfig config)
     {
         if (config.Width <= 0 || config.Height <= 0)
             throw new ArgumentException("Размеры карты должны быть положительными.", nameof(config));
@@ -128,6 +118,9 @@ public class MapCreator
 
         foreach (var spawn in config.Spawns)
         {
+            if (!_creators.ContainsKey(spawn.Type))
+                throw new ArgumentException($"Для типа {spawn.Type} не нашлось креатора");
+
             if (spawn.Count < 0)
                 throw new ArgumentException($"Отрицательное количество для {spawn.Type.Name}.", nameof(config));
 
@@ -168,7 +161,7 @@ public class LilyCreator(int seed) : ICreator<WaterLily>
 
     public float MaxSize => Dif + LilyRadius;
 
-    public WaterLily Create(Vector2 position, Core.Map.Map map)
+    public WaterLily Create(Vector2 position, Map map)
     {
         return new WaterLily(_lilyId++, position, LilyRadius + Dif * _random.NextSingle());
     }
@@ -183,7 +176,7 @@ public class FlyCreator(int seed) : ICreator<Fly>
 
     public float MaxSize => Dif + FlyRadius;
 
-    public Fly Create(Vector2 position, Core.Map.Map map)
+    public Fly Create(Vector2 position, Map map)
     {
         return new Fly(_flyId++, position, FlyRadius + Dif * _random.NextSingle());
     }

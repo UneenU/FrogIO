@@ -5,7 +5,7 @@ using Core.Systems;
 
 namespace Core.Events;
 
-public interface IEventHandler<TEvent> where TEvent : GameEvent
+public interface IEventHandler<in TEvent> where TEvent : GameEvent
 {
     void Handle(TEvent e, SimulationContext simulationContext);
 }
@@ -14,7 +14,7 @@ public class FrogFallInWaterEventHandler : IEventHandler<FrogFallInWaterEvent>
 {
     public void Handle(FrogFallInWaterEvent e, SimulationContext simulationContext)
     {
-        simulationContext.Map.Add(new WaterSplash(1, e.Frog.Position, WaterSplashSettings.DefaultWaterSplashSettings));
+        simulationContext.Map.Spawn(new WaterSplash(1, e.Frog.Position, WaterSplashSettings.DefaultWaterSplashSettings));
     }
 }
 
@@ -41,10 +41,6 @@ public sealed class TwoObjectsCollidedEventHandler : IEventHandler<TwoObjectsCol
     {
         var a = new Participant(e.Obj1);
         var b = new Participant(e.Obj2);
-
-        // if (a.IsStatic && b.IsStatic)
-        //     throw new InvalidOperationException(
-        //         $"Столкнулись два неподвижных объекта ({(a.Obj as GameObject)!.Id} и {(b.Obj as GameObject)!.Id}).");
 
         var totalInvMass = a.InverseMass + b.InverseMass;
         var offset = a.Obj.Position - b.Obj.Position;

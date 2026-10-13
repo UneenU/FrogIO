@@ -26,7 +26,6 @@ public class MatchCreator : IMatchCreator
     public Match CreateMatch(PlayerInfo[] playersInfo)
     {
         var map = _mapCreator.Create();
-        var bindings = new ControllerBindings();
         Player[] players = new Player[playersInfo.Length];
 
         var lilies = map.Query<WaterLily>().ToList();
@@ -37,14 +36,13 @@ public class MatchCreator : IMatchCreator
         {
             // создание мух через фактори
             var fly = new Fly(i, new Vector2(map.Width / 2, map.Height / 2), 2);
-            map.Add(fly);
+            map.Spawn(fly);
 
-            var aiController = _factory.NewFlyAiController();
-            bindings.Bind(aiController.ControllerId, fly);
+            var aiController = _factory.NewFlyAiController(fly);
             aiControllers.Add(aiController);
         }
 
-        var aiSystem = new AiInputSystem(aiControllers, bindings);
+        var aiSystem = new AiInputSystem(aiControllers);
 
         // добавление лягушек
         // TODO: вынести в отдельный метод
@@ -55,15 +53,15 @@ public class MatchCreator : IMatchCreator
             // создание лягушки по свойству chosenFrog
             var lily = lilies[_random.Next(0, lilies.Count)];
             var frog = new Frog(controllerId, lily.Position, 5, lily);
-            map.Add(frog);
+            map.Spawn(frog);
 
-            bindings.Bind(controllerId, frog);
-            var player = new Player(playerInfo.playerId, frog, controllerId);
+            var player = new Player(playerInfo.playerId, frog);
             players[i] = player;
             controllerId++;
         }
+        map.ApplyPendingChanges();
 
-        var control = new ControlSystem(bindings);
+        var control = new ControlSystem();
 
         // Собыийная модель
         var events = new EventDispatcher();

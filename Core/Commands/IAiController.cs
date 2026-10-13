@@ -1,29 +1,28 @@
+using Core.Objects;
 using Core.Objects.Abstraction;
 using Core.Systems;
 
 namespace Core.Commands;
 
-
 public interface IAiController
 {
-    int ControllerId { get; }
+    Command Think(SimulationContext ctx);
+}
 
-    Command Think(IControllable body, SimulationContext ctx);
+public interface IAiController<out T> : IAiController where T : IControllable
+{
+    T Controllable { get; }
 }
 
 public class AiControllerFactory
 {
-    private static int controllerId = 0;
-
-    public IAiController NewFlyAiController()
+    public IAiController<Fly> NewFlyAiController(Fly fly)
     {
-        controllerId++;
-        return new FlyAiController(controllerId);
+        return new FlyAiController(fly);
     }
 
-    public IAiController NewFrogAiController()
+    public IAiController<Frog> NewFrogAiController(Frog frog)
     {
-        controllerId++;
-        return new FrogAiController(controllerId);
+        return new FrogAiController(frog);
     }
 }

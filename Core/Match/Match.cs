@@ -10,7 +10,7 @@ public class Match
     
     // TODO: вернуть в private
     public readonly Map.Map _map;
-    private readonly ICommandHandler _commandHandler;
+    private readonly ControlSystem _controlSystem;
     private readonly AiInputSystem _aiSystem;
     private readonly IReadOnlyList<ISimulationSystem> _systems;
     private readonly EventDispatcher _events;
@@ -29,7 +29,7 @@ public class Match
         string id,
         Map.Map map,
         Player[] players,
-        ICommandHandler commandHandler,
+        ControlSystem controlSystem,
         AiInputSystem aiSystem,
         IReadOnlyList<ISimulationSystem> systems,
         EventDispatcher events, MatchSettings? settings = null)
@@ -37,7 +37,7 @@ public class Match
         Id = id;
         _map = map;
         Players = players;
-        _commandHandler = commandHandler;
+        _controlSystem = controlSystem;
         _aiSystem = aiSystem;
         _systems = systems;
         _events = events;
@@ -53,7 +53,7 @@ public class Match
         var commands = _aiSystem.GetAiCommands(ctx);
         commands.AddRange(userCommands);
  
-        _commandHandler.Handle(commands, ctx);
+        _controlSystem.Handle(commands, ctx);
  
         foreach (var system in _systems)
             system.Update(ctx);

@@ -5,26 +5,21 @@ using Core.Objects.Abstraction;
 
 namespace Core.Systems;
 
-public sealed class ControlSystem(ControllerBindings bindings) : ICommandHandler
+public sealed class ControlSystem()
 {
     public void Handle(IReadOnlyList<Command> commands, SimulationContext ctx)
     {
         foreach (var command in commands)
         {
-            if (!bindings.TryGetBody(command.ControllerId, out var body))
-            {
-                continue;
-            }
-
-            Apply(body, command, ctx);
+            Apply(command, ctx);
         }
     }
     
 
     /// <summary>Что значит ввод для конкретного вида тела. Новое животное = новая ветка.</summary>
-    private static void Apply(IControllable body, Command command, SimulationContext ctx)
+    private static void Apply(Command command, SimulationContext ctx)
     {
-        switch (body)
+        switch (command.Controllable)
         {
             case Frog frog:
                 ControlFrog(frog, command, ctx);

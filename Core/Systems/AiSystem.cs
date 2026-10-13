@@ -2,18 +2,14 @@ using Core.Commands;
 
 namespace Core.Systems;
 
-public class AiInputSystem(List<IAiController> aiControllers, ControllerBindings bindings)
+public class AiInputSystem(List<IAiController> aiControllers)
 {
-    private readonly List<IAiController> aiControllers = aiControllers;
-    private readonly ControllerBindings bindings = bindings;
-
     public List<Command> GetAiCommands(SimulationContext ctx)
     {
         List<Command> commands = new();
         foreach (var aiController in aiControllers)
         {
-            if(!bindings.TryGetBody(aiController.ControllerId, out var body)) continue;
-            commands.Add(aiController.Think(body, ctx));
+            commands.Add(aiController.Think(ctx));
         }
         
         return commands;

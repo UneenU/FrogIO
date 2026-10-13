@@ -1,4 +1,5 @@
 using System.Numerics;
+using Core.Objects.Abstraction;
 
 namespace Core.Commands;
 
@@ -13,7 +14,7 @@ public enum CommandButtons : byte
 
 
 public readonly record struct Command(
-    int ControllerId,
+    IControllable Controllable,
     Vector2 Target,
     CommandButtons Buttons)
 {

@@ -5,29 +5,29 @@ using Core.Systems;
 
 namespace Core.Commands;
 
-public class FrogAiController(int controllerId) : IAiController
+public class FrogAiController(Frog controllable) : IAiController<Frog>
 {
-    private const int RetargetEveryTicks = 300;
-    private const float AimDepth = 0.75f;
     private readonly Random _random = new();
-    private int _retargetAtTick = 0;
     
-    public Vector2? Target { get; private set; }
-    public int ControllerId { get; set; } = controllerId;
+    private const float AimDepth = 0.75f;
+    private const int RetargetEveryTicks = 300;
+    private int _retargetAtTick = 0;
+    private Vector2? _target;
 
-    public Command Think(IControllable body, SimulationContext ctx)
+    public Frog Controllable { get; } = controllable;
+
+    public Command Think(SimulationContext ctx)
     {
         var tick = ctx.Tick;
-        Frog frog = (Frog)body;
+        Frog frog = (Frog)Controllable;
         if (tick >= _retargetAtTick)
         {
-            Target = ChooseTarget(ctx.Map, frog);
+            _target = ChooseTarget(ctx.Map, frog);
             _retargetAtTick = tick + RetargetEveryTicks;
         }
 
-        return new Command(ControllerId, Target ?? frog.Position, CommandButtons.Move);
+        return new Command(Controllable, _target ?? frog.Position, CommandButtons.Move);
     }
-
 
     private Vector2 ChooseTarget(Map.Map map, Frog frog)
     {
