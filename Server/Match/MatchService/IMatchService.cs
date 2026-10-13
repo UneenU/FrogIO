@@ -1,11 +1,11 @@
-using Core;
-using Core.Commands;
+using Server.Match;
+using PlayerInfo = Core.Match.PlayerInfo;
 
 namespace Server.MatchRuntime;
 
 public interface IMatchService
 {
-    string StartMatch(string[] playersIds);
+    (MatchInit matchInit, string matchId) StartMatch(PlayerInfo[] playersInfo);
     void StopMatch(string matchId);
-    void HandleUserInput(string userId, Input input);
+    void HandleUserInput(int userId, Input input);
 }

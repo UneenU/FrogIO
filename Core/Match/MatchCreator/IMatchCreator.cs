@@ -1,8 +1,8 @@
 using Core;
 
-namespace Match;
+namespace Core.Match;
 
 public interface IMatchCreator
 {
-    public Core.Match CreateMatch();
+    public Match CreateMatch(PlayerInfo[] playersInfo);
 }

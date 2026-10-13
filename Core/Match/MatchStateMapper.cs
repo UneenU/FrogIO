@@ -17,10 +17,10 @@ public static class MatchStateMapper
             scores);
 
     private static PadState ToPadState(WaterLily lily) =>
-        new(lily.Id, lily.Position.X, lily.Position.Y);
+        new(lily.Id, lily.Position.X, lily.Position.Y, lily.Radius);
 
     private static FlyState ToFlyState(Fly fly) =>
-        new(fly.Id, fly.Position.X, fly.Position.Y, AngleOf(fly.Facing));
+        new(fly.Id, fly.Position.X, fly.Position.Y, fly.Radius, AngleOf(fly.Facing));
 
     private static FrogInfo ToFrogState(Frog frog)
     {
@@ -29,9 +29,12 @@ public static class MatchStateMapper
             frog.Id,
             frog.Position.X,
             frog.Position.Y,
+            frog.Radius,
             AngleOf(frog.Facing),
             frog.State,
             frog.Lily?.Id,
+            frog.TonguePosition.X,
+            frog.TonguePosition.Y,
             frog.TongueState);
     }
 

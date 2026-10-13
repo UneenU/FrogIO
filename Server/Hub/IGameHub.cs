@@ -1,3 +1,6 @@
+using Core;
+using Server.Match;
+
 namespace Server;
 
 public interface IGameHub
@@ -5,9 +8,12 @@ public interface IGameHub
     Task UpdateWorldState(MatchState state);
     Task PlayerJoinedTheLobby(LobbyMember player);
     Task PlayerLeftTheLobby(LobbyMember player);
-    Task MatchStarted();
+    Task MatchStarted(MatchInit initialState);
     Task MatchEnded(MatchResult result);
     Task LobbyWasClosed();
-    Task ReceiveChatMessage(string gamerId, string message);
+    Task ReceiveChatMessage(string message);
     Task PlayerReturnedInTheLobby(LobbyMember player);
+    Task PlayerReadyChanged(int playerId, bool isReady);
+    
+    Task TimeToStart(TimeSpan timeToStart);
 }

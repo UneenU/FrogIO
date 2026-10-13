@@ -1,9 +1,11 @@
 using System.Collections.Concurrent;
 using Core;
 using Core.Commands;
+using Core.Match;
 using Microsoft.AspNetCore.SignalR;
 using Server.Match;
 using Server.MatchRuntime;
+using PlayerInfo = Core.Match.PlayerInfo;
 
 namespace Server.SessionManager;
 
@@ -25,15 +27,20 @@ public class MatchService : IMatchService
         _matchRepository = matchRepository;
     }
 
-    public string StartMatch(string[] playersIds)
+    public (MatchInit matchInit, string matchId) StartMatch(PlayerInfo[] playersInfo)
     {
-        var match = _matchCreator.CreateMatch();
+        var match = _matchCreator.CreateMatch(playersInfo);
         var runtime = new MatchRuntime(match, _hubContext, _logger);
         if (_runtimes.TryAdd(match.Id, runtime))
         {
+            _logger.LogInformation($"Match started for {match.WorldWidth}x{match.WorlHeight}");
             runtime.Start();
         }
-        return match.Id;
+
+        var players = match.Players
+            .Select(p => new Server.Match.PlayerInfo(p.PlayerId, ((GameObject)p.Controllable).Id))
+            .ToArray();
+        return (new MatchInit(match.WorldWidth, match.WorlHeight, players), match.Id);
     }
 
     public void StopMatch(string matchId)
@@ -44,7 +51,7 @@ public class MatchService : IMatchService
         }
     }
 
-    public void HandleUserInput(string userId, Input input)
+    public void HandleUserInput(int userId, Input input)
     {
         // создание объекта типа Command по пользовательскому вводу
         var command = new Command();

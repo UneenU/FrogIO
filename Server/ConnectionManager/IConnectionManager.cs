@@ -4,9 +4,9 @@ namespace Server;
 
 public interface IConnectionManager
 {
-    string IdentifyUserByConnection(HubCallerContext context);
-    void Register(string playerId, string connectionId);
-    void Unregister(string playerId);
-    string? GetConnectionId(string playerId);
-    IReadOnlyList<string> GetConnectionsFor(string playerId);
+    int IdentifyUserByConnection(HubCallerContext context);
+    void Register(int playerId, string connectionId);
+    void Unregister(int playerId);
+    string? GetConnectionId(int playerId);
+    IReadOnlyList<string> GetConnectionsFor(int playerId);
 }

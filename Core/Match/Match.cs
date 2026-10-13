@@ -1,13 +1,7 @@
 using Core.Commands;
 using Core.Events;
 
-namespace Core;
-
-public interface IEventSink
-{
-    void Publish(GameEvent e);
-}
-
+namespace Core.Match;
 
 public class Match
 {
@@ -23,10 +17,14 @@ public class Match
  
     public Player[] Players { get; init; }
     public int Tick { get; private set; }
-    public string Id { get; }
+    public string Id { get; init; }
+    public float WorldWidth => _map.Width;
+    public float WorlHeight => _map.Height;
+    
 
     /// <param name="systems">Порядок в списке = порядок выполнения внутри тика (движение, потом приземление).</param>
     public Match(
+        string id,
         Map map,
         Player[] players,
         ICommandHandler commandHandler,
@@ -34,6 +32,7 @@ public class Match
         IReadOnlyList<ISimulationSystem> systems,
         EventDispatcher events, MatchSettings? settings = null)
     {
+        Id = id;
         _map = map;
         Players = players;
         _commandHandler = commandHandler;

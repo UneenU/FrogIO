@@ -1,7 +1,12 @@
+using Core.Match;
 using Core.Simulation;
 
 namespace Core.Events;
 
+public interface IEventSink
+{
+    void Publish(GameEvent e);
+}
 
 public sealed class EventDispatcher : IEventSink
 {
