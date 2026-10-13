@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SignalR чат</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+        #messages { height: 350px; overflow-y: auto; border: 1px solid #ccc; border-radius: 8px; padding: .5rem; margin: .5rem 0; }
+        .msg { margin: .25rem 0; }
+        .time { color: #888; font-size: .8em; margin-right: .4rem; }
+        .system { color: #888; font-style: italic; }
+        .row { display: flex; gap: .5rem; }
+        .row input { flex: 1; padding: .5rem; }
+        button { padding: .5rem 1rem; }
+    </style>
+</head>
+<body>
+<h2>Чат <small id="count"></small></h2>
+<div id="status">Подключение...</div>
+
+<div id="login" class="row">
+    <input id="name" placeholder="Ваше имя" />
+    <button id="joinBtn" disabled>Войти</button>
+</div>
+
+<div id="chat" hidden>
+    <div id="messages"></div>
+    <div class="row">
+        <input id="text" placeholder="Сообщение..." autocomplete="off" />
+        <button id="sendBtn">Отправить</button>
+    </div>
+</div>
+
+</body>
+</html>
