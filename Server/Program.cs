@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using Core;
 using Core.Commands;
-using Core.Map;
+using Core.MapSystem;
 using Core.Match;
 using Core.Match.MatchCreator;
 using Core.Objects;

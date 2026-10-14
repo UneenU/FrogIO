@@ -3,7 +3,6 @@ using Core.Systems;
 
 namespace Core.Match;
 
-/// <summary>Очки игроков. Слушает события, поэтому о счёте не знают ни системы, ни Frog.</summary>
 public sealed class ScoreBoard : IEventHandler<FrogEatFlyEvent>
 {
     private const int PointsPerFly = 1;

@@ -3,27 +3,29 @@ using Core.Objects.Abstraction;
 
 namespace Core.Objects;
 
-/// <summary>
-/// Круг на воде, расширяющийся от центра. Не IMovable: позиция не меняется, меняется только радиус.
-/// Сам себя с карты не убирает: Advance сообщает, что время вышло, а удаляет его система.
-/// </summary>
-public sealed class WaterSplash(int id, Vector2 position, WaterSplashSettings settings)
-    : GameObject(id, position, settings.StartRadius)
+public sealed class WaterSplash(
+    int id,
+    Vector2 position,
+    float startRadius,
+    float maxRadius,
+    float maxStrength,
+    float spreadSpeed = 0.3f)
+    : GameObject(id, position, startRadius)
 {
-    public WaterSplashSettings Settings { get; } = settings;
-    public int AgeTicks { get; private set; }
-    public bool IsExpired => AgeTicks >= Settings.LifetimeTicks;
+    public readonly float InitialStrength = maxStrength;
+    public float MaxRadius { get; } = maxRadius;
+    public float SpreadSpeed { get; } = spreadSpeed;
 
     public float Strength
     {
-        get => Settings.MaxStrength * (Settings.LifetimeTicks - AgeTicks) / Settings.LifetimeTicks;
+        get => InitialStrength * (MaxRadius - Radius) / MaxRadius;
     }
 
     /// <summary>Раз в тик: старит всплеск и расширяет круг. Возвращает true, когда время жизни вышло.</summary>
     public bool Advance()
     {
-        AgeTicks++;
-        Radius = Math.Min(Settings.StartRadius + Settings.SpreadSpeed * AgeTicks, Settings.MaxRadius);
-        return IsExpired;
+        Radius += SpreadSpeed;
+        Radius = Math.Min(Radius, MaxRadius);
+        return Math.Abs(Radius - MaxRadius) < 1e-6;
     }
 }

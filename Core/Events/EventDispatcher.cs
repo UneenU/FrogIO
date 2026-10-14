@@ -17,8 +17,6 @@ public sealed class EventDispatcher : IEventSink
 
     /// <summary>
     /// Подписывает обработчик на события типа TEvent. Порядок вызова = порядок регистрации.
-    /// Типизированный обработчик "стирается" до общего делегата здесь, один раз,
-    /// поэтому при диспетчеризации не нужны ни рефлексия, ни dynamic.
     /// </summary>
     public void RegisterHandler<TEvent>(IEventHandler<TEvent> handler) where TEvent : GameEvent
     {

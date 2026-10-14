@@ -1,7 +1,7 @@
 using System.Numerics;
 using Core.Commands;
 using Core.Events;
-using Core.Map;
+using Core.MapSystem;
 using Core.Objects;
 using Core.Systems;
 using Core.Systems.Interfaces;

@@ -30,7 +30,7 @@ public class FrogAiController(Frog controllable) : IAiController<Frog>
             { Controllable = Controllable, Target = _target ?? frog.Position, Buttons = CommandButtons.Move };
     }
 
-    private Vector2 ChooseTarget(Map.Map map, Frog frog)
+    private Vector2 ChooseTarget(MapSystem.Map map, Frog frog)
     {
         var lilies = map.Query<WaterLily>()
             .Where(l => l != frog.Lily)

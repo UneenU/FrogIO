@@ -14,7 +14,11 @@ public class FrogFallInWaterEventHandler : IEventHandler<FrogFallInWaterEvent>
 {
     public void Handle(FrogFallInWaterEvent e, SimulationContext simulationContext)
     {
-        simulationContext.Map.Spawn(new WaterSplash(1, e.Frog.Position, WaterSplashSettings.DefaultWaterSplashSettings));
+        var frog = e.Frog;
+        
+        //TODO: починить id
+        var splash = new WaterSplash(0, frog.Position, frog.Radius, 3 * frog.Radius, frog.Radius * 0.1f);
+        simulationContext.Map.Spawn(splash);
     }
 }
 

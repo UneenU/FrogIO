@@ -1,7 +1,7 @@
 using System.Numerics;
 using Core.Objects.Abstraction;
 
-namespace Core.Map;
+namespace Core.MapSystem;
 
 public class Map(float width, float height, List<GameObject> gameObjects)
 {

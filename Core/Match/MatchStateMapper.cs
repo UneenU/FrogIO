@@ -3,10 +3,9 @@ using Core.Objects;
 
 namespace Core.Match;
 
-/// <summary>Переводит живой мир (Map) в неизменяемый снимок для клиентов.</summary>
 public static class MatchStateMapper
 {
-    public static MatchState Create(Map.Map map, int tick, float time, float timeLeft, PlayerScore[] scores) =>
+    public static MatchState Create(MapSystem.Map map, int tick, float time, float timeLeft, PlayerScore[] scores) =>
         new(tick,
             time,
             timeLeft,

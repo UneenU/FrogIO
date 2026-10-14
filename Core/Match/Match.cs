@@ -1,15 +1,15 @@
 using Core.Commands;
 using Core.Events;
+using Core.MapSystem;
 using Core.Systems;
 using Core.Systems.Interfaces;
-
 namespace Core.Match;
 
 public class Match
 {
     
     // TODO: вернуть в private
-    public readonly Map.Map _map;
+    private readonly Map _map;
     private readonly ControlSystem _controlSystem;
     private readonly AiInputSystem _aiSystem;
     private readonly IReadOnlyList<ISimulationSystem> _systems;
@@ -17,17 +17,16 @@ public class Match
     private readonly MatchSettings _settings;
     private readonly ScoreBoard _scoreBoard;
  
-    public Player[] Players { get; init; }
+    public Player[] Players { get; }
     public int Tick { get; private set; }
-    public string Id { get; init; }
+    public string Id { get; }
     public float WorldWidth => _map.Width;
     public float WorlHeight => _map.Height;
     
 
-    /// <param name="systems">Порядок в списке = порядок выполнения внутри тика (движение, потом приземление).</param>
     public Match(
         string id,
-        Map.Map map,
+        Map map,
         Player[] players,
         ControlSystem controlSystem,
         AiInputSystem aiSystem,
@@ -47,11 +46,11 @@ public class Match
         _events.RegisterHandler(_scoreBoard);
     }
     
-    public MatchState Step(Command[] userCommands)
+    public MatchState Step(Command[] usersCommands)
     {
         var ctx = new SimulationContext(_map, Tick, _events);
         var commands = _aiSystem.GetAiCommands(ctx);
-        commands.AddRange(userCommands);
+        commands.AddRange(usersCommands);
  
         _controlSystem.Handle(commands, ctx);
  
