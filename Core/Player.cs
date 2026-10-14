@@ -2,15 +2,8 @@ using Core.Objects.Abstraction;
 
 namespace Core;
 
-public class Player
+public class Player(int playerId, IControllable controllable)
 {
-    public int PlayerId { get; init; }
-    public IControllable Controllable { get; private set; }
-    
-    
-    public Player(int playerId, IControllable controllable)
-    {
-        PlayerId = playerId;
-        Controllable = controllable;
-    }
+    public int PlayerId { get; } = playerId;
+    public IControllable Controllable { get; private set; } = controllable;
 }

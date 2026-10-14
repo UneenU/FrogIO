@@ -4,13 +4,12 @@ using Core.Objects.Abstraction;
 namespace Core.Objects;
 
 public sealed class WaterSplash(
-    int id,
     Vector2 position,
     float startRadius,
     float maxRadius,
     float maxStrength,
     float spreadSpeed = 0.3f)
-    : GameObject(id, position, startRadius)
+    : GameObject(position, startRadius)
 {
     public readonly float InitialStrength = maxStrength;
     public float MaxRadius { get; } = maxRadius;

@@ -35,7 +35,7 @@ public class MatchCreator : IMatchCreator
         for (int i = 0; i < _flyCount; i++)
         {
             // создание мух через фактори
-            var fly = new Fly(i, new Vector2(map.Width / 2, map.Height / 2), 2);
+            var fly = new Fly(new Vector2(map.Width / 2, map.Height / 2), 2);
             map.Spawn(fly);
 
             var aiController = _factory.NewFlyAiController(fly);
@@ -46,18 +46,16 @@ public class MatchCreator : IMatchCreator
 
         // добавление лягушек
         // TODO: вынести в отдельный метод
-        int controllerId = 1000;
         for (var i = 0; i < playersInfo.Length; i++)
         {
             var playerInfo = playersInfo[i];
             // создание лягушки по свойству chosenFrog
             var lily = lilies[_random.Next(0, lilies.Count)];
-            var frog = new Frog(controllerId, lily.Position, 5, lily);
+            var frog = new Frog(lily.Position, 5, lily);
             map.Spawn(frog);
 
             var player = new Player(playerInfo.playerId, frog);
             players[i] = player;
-            controllerId++;
         }
         map.ApplyPendingChanges();
 

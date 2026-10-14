@@ -17,7 +17,7 @@ public sealed class Fly : GameObject, IMovable, IControllable
     
     public Frog? CaughtBy { get; set; } = null;
 
-    public Fly(int id, Vector2 position, float radius) : base(id, position, radius)
+    public Fly(Vector2 position, float radius) : base(position, radius)
     {
         Height = FlyHeight;
     }

@@ -43,7 +43,7 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
 
     private int _jumpTotalTicks;
 
-    public Frog(int id, Vector2 position, float radius, WaterLily? lily = null) : base(id, position, radius)
+    public Frog(Vector2 position, float radius, WaterLily? lily = null) : base(position, radius)
     {
         Lily = lily;
         _tongue = new Tongue(80, 3.5f);

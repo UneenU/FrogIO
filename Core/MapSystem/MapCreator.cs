@@ -140,7 +140,6 @@ public interface ICreator<out T>
 public class FrogCreator(int seed) : ICreator<Frog>
 {
     private readonly Random _random = new(seed);
-    private int _frogId = 1;
     private const float FrogRadius = 5;
     private const float Dif = 4;
 
@@ -148,13 +147,12 @@ public class FrogCreator(int seed) : ICreator<Frog>
 
     public Frog Create(Vector2 position, MapSystem.Map map)
     {
-        return new Frog(_frogId++, position, FrogRadius + Dif * _random.NextSingle(), null);
+        return new Frog(position, FrogRadius + Dif * _random.NextSingle(), null);
     }
 }
 
 public class LilyCreator(int seed) : ICreator<WaterLily>
 {
-    private int _lilyId = 1;
     private readonly Random _random = new(seed);
     private const float LilyRadius = 15;
     private const float Dif = 4;
@@ -163,13 +161,12 @@ public class LilyCreator(int seed) : ICreator<WaterLily>
 
     public WaterLily Create(Vector2 position, MapSystem.Map map)
     {
-        return new WaterLily(_lilyId++, position, LilyRadius + Dif * _random.NextSingle());
+        return new WaterLily(position, LilyRadius + Dif * _random.NextSingle());
     }
 }
 
 public class FlyCreator(int seed) : ICreator<Fly>
 {
-    private int _flyId = 1;
     private readonly Random _random = new(seed);
     private const float FlyRadius = 2.5f;
     private const float Dif = 0;
@@ -178,6 +175,6 @@ public class FlyCreator(int seed) : ICreator<Fly>
 
     public Fly Create(Vector2 position, MapSystem.Map map)
     {
-        return new Fly(_flyId++, position, FlyRadius + Dif * _random.NextSingle());
+        return new Fly(position, FlyRadius + Dif * _random.NextSingle());
     }
 }
