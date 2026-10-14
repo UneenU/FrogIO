@@ -65,6 +65,7 @@ public class Match
         return BuildState();
     }
     
+    
     private MatchState BuildState()
     {
         var time = Tick * _settings.TickDuration;

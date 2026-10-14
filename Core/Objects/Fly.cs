@@ -7,6 +7,8 @@ public sealed class Fly : GameObject, IMovable, IControllable
 {
     public const float FlyHeight = 10f;
 
+    public float Mass { get; } = 30;
+
     public float FlySpeed { get; } = 0.7f;
 
     public Vector2 Facing { get; private set; } = Vector2.UnitY;

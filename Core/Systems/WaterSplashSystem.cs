@@ -18,7 +18,7 @@ public sealed class WaterSplashSystem : ISimulationSystem
             {
                 var dir = (hittedObject as GameObject)!.Position - splash.Position;
                 if (dir.LengthSquared() < 1e-6) continue;
-                hittedObject.AddImpulse(splash.Strength * Vector2.Normalize(dir));
+                hittedObject.AddImpulse(splash.Strength / hittedObject.Mass * Vector2.Normalize(dir));
             }
         }
     }

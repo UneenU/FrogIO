@@ -6,6 +6,8 @@ public interface IMovable
 {
     Vector2 Velocity { get; }
     Vector2 Position { get; }
+    float Mass { get; }
+
     Vector2 Drift { get; }
     sealed Vector2 TotalVelocity => Velocity + Drift;
     void MoveBy(Vector2 delta);
@@ -15,7 +17,6 @@ public interface IMovable
     {
         if (Drift == Vector2.Zero) return;
         if (delta > Drift.Length()) delta = Drift.Length();
-        AddImpulse(-delta*Vector2.Normalize(Drift));
+        AddImpulse(-delta * Vector2.Normalize(Drift));
     }
-
 }

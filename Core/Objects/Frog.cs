@@ -7,16 +7,15 @@ namespace Core.Objects;
 public enum FrogState
 {
     SittingOnWaterLily = 1,
-    Swimming = 1<<1,
-    Jumping = 1<<2,
-    Dead = 1<<3,
-    Attacking = 1<<4,
+    Swimming = 1 << 1,
+    Jumping = 1 << 2,
+    Dead = 1 << 3,
+    Attacking = 1 << 4,
 }
 
 public class Frog : GameObject, IMovable, ICollidable, IControllable
 {
-    private const float Epsilon = 1e-6f;
-
+    public float Mass { get; private set; } = 300;
     private const int JumpCooldownTicks = 60;
     public const int AttackCooldownTicks = 60;
     private const float JumpPeakHeight = 20f;
@@ -66,10 +65,10 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
     /// <summary>Смотреть в сторону, не двигаясь (прицел мышью). Нулевой вектор игнорируется.</summary>
     public void Aim(Vector2 direction)
     {
-        if (IsAvailable && direction.LengthSquared() > Epsilon)
+        if (IsAvailable && direction.LengthSquared() > Constants.Epsilon)
             Facing = Vector2.Normalize(direction);
     }
-    
+
 
     public bool TryStartJump(Vector2 direction, float distance, int tick, bool lilyAtTarget)
     {
@@ -81,7 +80,7 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
         };
 
         if (tick < NextJumpAvailableTick
-            || direction.LengthSquared() < Epsilon
+            || direction.LengthSquared() < Constants.Epsilon
             || dist < 1e-3f)
             return false;
 
@@ -125,7 +124,7 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
         if (State != FrogState.Swimming) return;
 
         Aim(direction);
-        Velocity = direction.LengthSquared() > Epsilon ? Facing * SwimSpeed : Vector2.Zero;
+        Velocity = direction.LengthSquared() > Constants.Epsilon ? Facing * SwimSpeed : Vector2.Zero;
     }
 
     public bool TryAttack(Vector2 direction, float distance, int tick)
@@ -134,9 +133,9 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
 
         if (!IsAvailable ||
             tick < NextAttackAvailableTick ||
-            direction.LengthSquared() < Epsilon ||
+            direction.LengthSquared() < Constants.Epsilon ||
             dist < 1e-3f) return false;
-        
+
         Aim(direction);
         StopMotion();
         NextAttackAvailableTick = tick + AttackCooldownTicks;
@@ -152,7 +151,7 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
             if (!_tongue.CaughtFlies.Contains(fly))
                 _tongue.CaughtFlies.Add(fly);
 
-        if (_tongue.CaughtFlies.Count > 0 || _tongue.RelativeTipPosition.Length() >= _tongue.MaxLength - Epsilon)
+        if (_tongue.CaughtFlies.Count > 0 || _tongue.RelativeTipPosition.Length() >= _tongue.MaxLength - Constants.Epsilon)
             _tongue.State = TongueState.Returning;
 
         var delta = _tongue.Speed * (_tongue.State == TongueState.Forwarding ? 1 : -1);
@@ -160,11 +159,11 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
         var newTongueLength = Math.Clamp(_tongue.RelativeTipPosition.Length() + delta, 0, _tongue.MaxLength);
 
         _tongue.RelativeTipPosition = Vector2.Normalize(direction) * newTongueLength;
-        
-        
+
+
         Aim(direction);
 
-        return newTongueLength < Epsilon;
+        return newTongueLength < Constants.Epsilon;
     }
 
     public void EndAttack()
@@ -172,6 +171,18 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
         State &= ~FrogState.Attacking;
         _tongue.RelativeTipPosition = Vector2.Zero;
         _tongue.State = TongueState.InMouth;
+        
+        EatFlies();
+    }
+
+    private void EatFlies()
+    {
+        foreach (var fly in _tongue.CaughtFlies)
+        {
+            Mass += fly.Mass;
+            Radius += fly.Mass * 0.01f;
+        }
+
         _tongue.CaughtFlies.Clear();
     }
 

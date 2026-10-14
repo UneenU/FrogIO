@@ -12,6 +12,7 @@ public static class MatchStateMapper
             map.Query<Frog>().Select(ToFrogState).ToArray(),
             map.Query<WaterLily>().Select(ToPadState).ToArray(),
             map.Query<Fly>().Select(ToFlyState).ToArray(),
+            map.Query<WaterSplash>().Select(ToSplashState).ToArray(),
             scores);
 
     private static PadState ToPadState(WaterLily lily) =>
@@ -34,6 +35,11 @@ public static class MatchStateMapper
             frog.TonguePosition.X,
             frog.TonguePosition.Y,
             frog.TongueState);
+    }
+
+    private static SplashState ToSplashState(WaterSplash splash)
+    {
+        return new SplashState(splash.Id, splash.Position.X, splash.Position.Y, splash.Radius);
     }
 
     private static float AngleOf(Vector2 direction) => MathF.Atan2(direction.Y, direction.X);

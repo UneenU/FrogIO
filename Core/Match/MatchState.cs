@@ -9,6 +9,7 @@ public record MatchState(
     FrogInfo[] Frogs,
     PadState[] Pads,
     FlyState[] Flies,
+    SplashState[] Splashes,
     PlayerScore[] Scores);
 
 public record PadState(int Id, float X, float Y, float Radius);
@@ -26,5 +27,8 @@ public record FrogInfo(
     float TongueX,
     float TunguqY,
     TongueState Tongue);
+
+
+public record SplashState(int Id, float X, float Y, float Radius);
 
 public record PlayerScore(int PlayerId, int Score);

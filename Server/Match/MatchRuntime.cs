@@ -89,5 +89,8 @@ public class MatchRuntime : IAsyncDisposable
         await _cts.CancelAsync();
         if (_loopTask != null) await _loopTask;
         _cts.Dispose();
+        await _hubContext.Clients
+            .Group(_match.Id)
+            .MatchEnded(new MatchResult());
     }
 }
