@@ -13,10 +13,11 @@ public enum CommandButtons : byte
 }
 
 
-public readonly record struct Command(
-    IControllable Controllable,
-    Vector2 Target,
-    CommandButtons Buttons)
+public readonly record struct Command
 {
+    public required IControllable Controllable { get; init; }
+    public required Vector2 Target { get; init; }
+    public required CommandButtons Buttons { get; init; }
+
     public bool Wants(CommandButtons buttons) => buttons == Buttons;
 }

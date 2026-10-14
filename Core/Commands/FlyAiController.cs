@@ -29,6 +29,6 @@ public class FlyAiController(Fly controllable) : IAiController<Fly>
             _target = ChooseTarget();
             _retargetAtTick = tick + RetargetEveryTicks;
         }
-        return new Command(Controllable, _target, CommandButtons.Move);
+        return new Command {Controllable = Controllable, Target = _target, Buttons = CommandButtons.Move};
     }
 }

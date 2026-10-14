@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Numerics;
 using Core.Commands;
 using Core.Match.MatchCreator;
 using Core.Objects.Abstraction;
@@ -35,8 +36,13 @@ public class MatchService : IMatchService
             runtime.Start();
         }
 
+        foreach (var player in playersInfo)
+        {
+            _matchRepository.SetUserMatchAsync(player.playerId,  match.Id);
+        }
+
         var players = match.Players
-            .Select(p => new Server.Match.PlayerInfo(p.PlayerId, ((GameObject)p.Controllable).Id))
+            .Select(p => new PlayerInfo(p.PlayerId, ((GameObject)p.Controllable).Id))
             .ToArray();
         return (new MatchInit(match.WorldWidth, match.WorlHeight, players), match.Id);
     }
@@ -49,14 +55,28 @@ public class MatchService : IMatchService
         }
     }
 
-    public void HandleUserInput(int userId, Input input)
+    public async Task HandleUserInputAsync(int userId, Input input)
     {
-        // создание объекта типа Command по пользовательскому вводу
-        var command = new Command();
-
-        var matchId = _matchRepository.FindUserMatch(userId);
-        if (matchId == null) throw new ArgumentException();
+        var matchId = await _matchRepository.FindUserMatchAsync(userId);
+        if (string.IsNullOrEmpty(matchId)) throw new ArgumentException("Игрок не в матче");
         var runtime = _runtimes[matchId];
-        runtime.Enqueue(userId, command);
+        
+        var player = runtime.GetPlayer(userId);
+        var buttons = CommandButtons.None;
+        foreach (var button in input.Buttons)
+        {
+            switch (button)
+            {
+                case MouseButton.Left:
+                    buttons |= CommandButtons.Move;
+                    break;
+                case MouseButton.Right:
+                    buttons |= CommandButtons.Attack;
+                    break;
+            }
+        }
+        var target = new Vector2(input.X, input.Y);
+
+        runtime.Enqueue(userId, new Command {Controllable = player.Controllable, Buttons = buttons, Target = target});
     }
 }

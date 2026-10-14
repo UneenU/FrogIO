@@ -208,9 +208,9 @@ public class Frog : GameObject, IMovable, ICollidable, IControllable
 
 public enum TongueState
 {
+    InMouth,
     Forwarding,
     Returning,
-    InMouth,
 }
 
 public class Tongue(float length, float speed)

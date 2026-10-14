@@ -81,9 +81,9 @@ public class GameHub : Hub<IGameHub>
     // пока не проверяем
     public async Task HandleCommandAsync(Input input)
     {
-        _logger.Log(message: "Handling command", logLevel: LogLevel.Information);
+        _logger.LogInformation("Handling command");
         var playerId = _connectionManager.IdentifyUserByConnection(Context);
-        _matchService.HandleUserInput(playerId, input);
+        await _matchService.HandleUserInputAsync(playerId, input);
     }
 
     // public async Task CloseLobbyAsync(string lobbyId)

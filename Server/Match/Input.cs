@@ -1,7 +1,4 @@
 namespace Server.Match;
 
-public record Input
-{
-    public float TargetX;
-    public float TargetY;
-}
+public enum MouseButton { Left = 0, Right = 2 }
+public record Input(float X, float Y, MouseButton[] Buttons);

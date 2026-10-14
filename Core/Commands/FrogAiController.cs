@@ -8,7 +8,7 @@ namespace Core.Commands;
 public class FrogAiController(Frog controllable) : IAiController<Frog>
 {
     private readonly Random _random = new();
-    
+
     private const float AimDepth = 0.75f;
     private const int RetargetEveryTicks = 300;
     private int _retargetAtTick = 0;
@@ -26,7 +26,8 @@ public class FrogAiController(Frog controllable) : IAiController<Frog>
             _retargetAtTick = tick + RetargetEveryTicks;
         }
 
-        return new Command(Controllable, _target ?? frog.Position, CommandButtons.Move);
+        return new Command
+            { Controllable = Controllable, Target = _target ?? frog.Position, Buttons = CommandButtons.Move };
     }
 
     private Vector2 ChooseTarget(Map.Map map, Frog frog)

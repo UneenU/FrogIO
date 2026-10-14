@@ -1,4 +1,5 @@
 using System.Threading.Channels;
+using Core;
 using Core.Commands;
 using Microsoft.AspNetCore.SignalR;
 using Server.Hub;
@@ -7,16 +8,17 @@ namespace Server.Match;
 
 public class MatchRuntime : IAsyncDisposable
 {
-    private readonly Core.Match.Match _match;
+    private Core.Match.Match _match;
     private readonly IHubContext<GameHub, IGameHub> _hubContext;
     private readonly ILogger _logger;
     private readonly CancellationTokenSource _cts = new();
     private Task? _loopTask;
     private readonly Channel<(int, Command)> _commands = Channel.CreateUnbounded<(int, Command)>();
-
-
     private static readonly TimeSpan TickRate = TimeSpan.FromMilliseconds(1000.0 / 60.0);
     private const int SendEveryNTicks = 1;
+    private readonly Dictionary<int, Player> _matchPlayers = [];
+
+    public Player GetPlayer(int playerId) => _matchPlayers[playerId];
 
     public MatchRuntime(
         Core.Match.Match match,
@@ -26,6 +28,11 @@ public class MatchRuntime : IAsyncDisposable
         _match = match;
         _hubContext = hubContext;
         _logger = logger;
+
+        foreach (var player in _match.Players)
+        {
+            _matchPlayers[player.PlayerId] = player;
+        }
     }
 
     public void Enqueue(int playerId, Command command)
