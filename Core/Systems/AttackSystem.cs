@@ -1,6 +1,6 @@
 using Core.Events;
 using Core.Objects;
-using Core.Systems.Interfaces;
+using Core.Systems.Abstraction;
 
 namespace Core.Systems;
 

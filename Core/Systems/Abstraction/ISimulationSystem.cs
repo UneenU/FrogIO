@@ -1,4 +1,4 @@
-namespace Core.Systems.Interfaces;
+namespace Core.Systems.Abstraction;
 
 public interface ISimulationSystem
 {

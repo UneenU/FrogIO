@@ -5,8 +5,6 @@ namespace Core.Objects;
 
 public sealed class Fly : GameObject, IMovable, IControllable
 {
-    private const float Epsilon = 1e-6f;
-
     public const float FlyHeight = 10f;
 
     public float FlySpeed { get; } = 0.7f;
@@ -15,26 +13,24 @@ public sealed class Fly : GameObject, IMovable, IControllable
     public Vector2 Velocity { get; private set; }
     public Vector2 Drift { get; private set; } = Vector2.Zero;
     
-    public Frog? CaughtBy { get; set; } = null;
+    public Frog? CaughtBy { get; set; }
 
     public Fly(Vector2 position, float radius) : base(position, radius)
     {
         Height = FlyHeight;
     }
 
-    /// <summary>Применяет смещение, посчитанное системой движения. Больше ничего не делает.</summary>
     public void MoveBy(Vector2 delta) => Position += delta;
 
     public void AddImpulse(Vector2 deltaV)
     {
-        // Drift += deltaV;
+        Drift += deltaV;
     }
 
-    /// <summary>Лететь в заданном направлении. Нулевой вектор останавливает муху (зависает на месте).</summary>
     public void Steer(Vector2 direction)
     {
         if (CaughtBy is not null ||
-            direction.LengthSquared() < Epsilon)
+            direction.LengthSquared() < Constants.Epsilon)
         {
             Velocity = Vector2.Zero;
             return;

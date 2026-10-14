@@ -4,7 +4,7 @@ using Core.Events;
 using Core.MapSystem;
 using Core.Objects;
 using Core.Systems;
-using Core.Systems.Interfaces;
+using Core.Systems.Abstraction;
 
 namespace Core.Match.MatchCreator;
 
@@ -13,7 +13,6 @@ public class MatchCreator : IMatchCreator
     private readonly MapCreator _mapCreator;
     private readonly Random _random;
     private readonly AiControllerFactory _factory;
-    private int _flyCount = 100;
 
     public MatchCreator(MapCreator mapCreator, int seed, AiControllerFactory factory)
     {
@@ -31,17 +30,11 @@ public class MatchCreator : IMatchCreator
         var lilies = map.Query<WaterLily>().ToList();
 
         List<IAiController> aiControllers = new List<IAiController>();
-        // добавление мух
-        for (int i = 0; i < _flyCount; i++)
+        foreach (var fly in map.Query<Fly>())
         {
-            // создание мух через фактори
-            var fly = new Fly(new Vector2(map.Width / 2, map.Height / 2), 2);
-            map.Spawn(fly);
-
             var aiController = _factory.NewFlyAiController(fly);
             aiControllers.Add(aiController);
         }
-
         var aiSystem = new AiInputSystem(aiControllers);
 
         // добавление лягушек
@@ -57,6 +50,7 @@ public class MatchCreator : IMatchCreator
             var player = new Player(playerInfo.playerId, frog);
             players[i] = player;
         }
+
         map.ApplyPendingChanges();
 
         var control = new ControlSystem();

@@ -1,7 +1,7 @@
 using System.Numerics;
 using Core.Objects;
 using Core.Objects.Abstraction;
-using Core.Systems.Interfaces;
+using Core.Systems.Abstraction;
 
 namespace Core.Systems;
 
