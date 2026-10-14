@@ -12,7 +12,7 @@ public class AiInputSystem(List<IAiController> aiControllers)
         {
             commands.Add(aiController.Think(ctx));
         }
-        
+
         return commands;
     }
 }

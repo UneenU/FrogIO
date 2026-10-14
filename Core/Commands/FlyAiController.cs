@@ -16,18 +16,12 @@ public class FlyAiController(Fly controllable) : IAiController<Fly>
 
     public Fly Controllable { get; } = controllable;
 
-    private Vector2 ChooseTarget()
-    {
-        return new Vector2(_random.Next(100, 500), _random.Next(100, 300));
-    }
-
-
     public Command Think(SimulationContext ctx)
     {
         var tick = ctx.Tick;
         if (tick >= _retargetAtTick)
         {
-            _target = ChooseTarget();
+            _target = new Vector2(_random.NextSingle()*ctx.Map.Width, _random.NextSingle()*ctx.Map.Height);
             _retargetAtTick = tick + RetargetEveryTicks;
         }
         return new Command {Controllable = Controllable, Target = _target, Buttons = CommandButtons.Move};
