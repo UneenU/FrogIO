@@ -5,12 +5,13 @@ using Core.Match.MatchCreator;
 using Core.Objects.Abstraction;
 using Microsoft.AspNetCore.SignalR;
 using Server.Hub;
+using Server.Match.MatchRepository;
 
 namespace Server.Match.MatchService;
 
 public class MatchService : IMatchService
 {
-    private readonly ConcurrentDictionary<string, MatchRuntime> _runtimes = new();
+    private static readonly ConcurrentDictionary<string, MatchRuntime> Runtimes = new();
     private readonly IHubContext<GameHub, IGameHub> _hubContext;
     private readonly ILogger<MatchService> _logger;
     private readonly IMatchCreator _matchCreator;
@@ -30,7 +31,7 @@ public class MatchService : IMatchService
     {
         var match = _matchCreator.CreateMatch(playersInfo);
         var runtime = new MatchRuntime(match, _hubContext, _logger);
-        if (_runtimes.TryAdd(match.Id, runtime))
+        if (Runtimes.TryAdd(match.Id, runtime))
         {
             _logger.LogInformation($"Match started for {match.WorldWidth}x{match.WorlHeight}");
             runtime.Start();
@@ -49,7 +50,7 @@ public class MatchService : IMatchService
 
     public void StopMatch(string matchId)
     {
-        if (_runtimes.TryRemove(matchId, out var runtime))
+        if (Runtimes.TryRemove(matchId, out var runtime))
         {
             _ = runtime.DisposeAsync(); // не блокируем вызывающего
         }
@@ -59,7 +60,7 @@ public class MatchService : IMatchService
     {
         var matchId = await _matchRepository.FindUserMatchAsync(userId);
         if (string.IsNullOrEmpty(matchId)) throw new ArgumentException("Игрок не в матче");
-        var runtime = _runtimes[matchId];
+        var runtime = Runtimes[matchId];
         
         var player = runtime.GetPlayer(userId);
         var buttons = CommandButtons.None;

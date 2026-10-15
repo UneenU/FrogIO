@@ -5,10 +5,10 @@ namespace Server.Lobby.LobbyRepository;
 public class LobbyRepository : ILobbyRepository
 {
     // Хранилище лобби по их ID
-    private readonly ConcurrentDictionary<string, Lobby> _lobbies = new();
+    private static readonly ConcurrentDictionary<string, Lobby> _lobbies = new();
 
     // Быстрый маппинг: UserId -> LobbyId, чтобы не искать перебором
-    private readonly ConcurrentDictionary<int, string> _userLobbyMap = new();
+    private static readonly ConcurrentDictionary<int, string> _userLobbyMap = new();
 
     public async Task AddLobbyAsync(Lobby lobby)
     {

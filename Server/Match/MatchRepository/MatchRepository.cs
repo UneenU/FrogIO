@@ -1,13 +1,6 @@
 using System.Collections.Concurrent;
-using Server.Lobby.LobbyRepository;
 
-namespace Server.Match;
-
-public interface IMatchRepository
-{
-    ValueTask<string?> FindUserMatchAsync(int userId);
-    ValueTask SetUserMatchAsync(int userId, string matchId);
-}
+namespace Server.Match.MatchRepository;
 
 public class MatchRepository() : IMatchRepository
 {

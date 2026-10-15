@@ -13,13 +13,22 @@ using Server.Hub;
 using Server.Lobby.LobbyRepository;
 using Server.Lobby.LobbyService;
 using Server.Match;
+using Server.Match.MatchRepository;
 using Server.Match.MatchService;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSignalR(o => o.EnableDetailedErrors = true);
-builder.Services.AddSingleton<ILobbyRepository, LobbyRepository>();
-builder.Services.AddSingleton<ILobbyService, LobbyService>();
-builder.Services.AddSingleton<MapCreator>(provider =>
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+    ConnectionMultiplexer.Connect("localhost:6379"));
+
+builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
+
+builder.Services.AddScoped<ILobbyRepository, RedisLobbyRepository>();
+builder.Services.AddScoped<ILobbyService, LobbyService>();
+
+builder.Services.AddScoped<MapCreator>(_ =>
 {
     MapConfig config =
         new MapConfig(400, 300, [
@@ -28,18 +37,19 @@ builder.Services.AddSingleton<MapCreator>(provider =>
         ]);
     return new MapCreator(config, 42);
 });
-builder.Services.AddSingleton<IMatchService, MatchService>();
-builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
-builder.Services.AddSingleton<IMatchCreator>(provider =>
+
+builder.Services.AddScoped<IMatchRepository, RedisMatchRepository>();
+builder.Services.AddScoped<IMatchService, MatchService>();
+
+builder.Services.AddScoped<IMatchCreator>(provider =>
 {
     var mapCreator = provider.GetService<MapCreator>();
     return new MatchCreator(mapCreator, 42, new AiControllerFactory());
 });
-builder.Services.AddSingleton<IMatchRepository, MatchRepository>();
+
 builder.Services.AddSingleton<IHeroCatalog, HeroCatalog>();
+
 builder.Logging.AddConsole();
-builder.Logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Debug);
-builder.Logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Debug);
 
 var app = builder.Build();
 

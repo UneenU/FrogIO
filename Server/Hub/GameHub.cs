@@ -54,6 +54,9 @@ public class GameHub : Hub<IGameHub>
     {
         var playerId = _connectionManager.IdentifyUserByConnection(Context);
         var lobbyId = await _lobbyRepository.FindUserLobbyAsync(playerId);
+        
+        if (lobbyId == null) throw new HubException("lobby doesn't exist");
+        _logger.LogInformation($"player {playerId} setting ready {ready} lobby {lobbyId}");
 
         await _lobbyService.OnMembersReadyAsync(lobbyId, playerId, ready, heroId);
         
@@ -106,11 +109,13 @@ public class GameHub : Hub<IGameHub>
             .ToArray();
         var (initState, matchId) = _matchService.StartMatch(players);
         await Clients.Group(lobbyId).MatchStarted(initState);
-    
+
+        await _lobbyService.CloseLobbyAsync(lobbyId);
         foreach (var player in players)
         {
             var connectionId = _connectionManager.GetConnectionId(player.playerId);
             await Groups.AddToGroupAsync(connectionId, matchId);
+            await Groups.RemoveFromGroupAsync(connectionId, lobbyId);
             // убрать пользователя из группы по лобби, добавить в группу по матчу
         }
     }
