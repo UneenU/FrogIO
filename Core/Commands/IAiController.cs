@@ -1,5 +1,6 @@
 using Core.Objects;
 using Core.Objects.Abstraction;
+using Core.Objects.Frogs;
 using Core.Systems;
 using Core.Systems.Abstraction;
 

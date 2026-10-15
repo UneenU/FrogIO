@@ -1,6 +1,7 @@
 using System.Numerics;
 using Core.Objects;
 using Core.Objects.Abstraction;
+using Core.Objects.Frogs;
 
 namespace Core.MapSystem;
 
@@ -37,7 +38,7 @@ public class MapCreator
 
     private void RegisterCreators()
     {
-        _creators[typeof(Frog)] = new FrogCreator(_seed);
+        // _creators[typeof(Frog)] = new FrogCreator(_seed);
         _creators[typeof(WaterLily)] = new LilyCreator(_seed);
         _creators[typeof(Fly)] = new FlyCreator(_seed);
     }
@@ -137,19 +138,19 @@ public interface ICreator<out T>
     public T Create(Vector2 position, MapSystem.Map map);
 }
 
-public class FrogCreator(int seed) : ICreator<Frog>
-{
-    private readonly Random _random = new(seed);
-    private const float FrogRadius = 5;
-    private const float Dif = 4;
-
-    public float MaxSize => Dif + FrogRadius;
-
-    public Frog Create(Vector2 position, MapSystem.Map map)
-    {
-        return new Frog(position, FrogRadius + Dif * _random.NextSingle(), null);
-    }
-}
+// public class FrogCreator(int seed) : ICreator<Frog>
+// {
+//     private readonly Random _random = new(seed);
+//     private const float FrogRadius = 5;
+//     private const float Dif = 4;
+//
+//     public float MaxSize => Dif + FrogRadius;
+//
+//     public Frog Create(Vector2 position, MapSystem.Map map)
+//     {
+//         return new Frog(position, FrogRadius + Dif * _random.NextSingle(), null);
+//     }
+// }
 
 public class LilyCreator(int seed) : ICreator<WaterLily>
 {

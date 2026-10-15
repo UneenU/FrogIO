@@ -3,6 +3,7 @@ using Core.Commands;
 using Core.Events;
 using Core.MapSystem;
 using Core.Objects;
+using Core.Objects.Frogs;
 using Core.Systems;
 using Core.Systems.Abstraction;
 
@@ -44,7 +45,12 @@ public class MatchCreator : IMatchCreator
             var playerInfo = playersInfo[i];
             // создание лягушки по свойству chosenFrog
             var lily = lilies[_random.Next(0, lilies.Count)];
-            var frog = new Frog(lily.Position, 5, lily);
+            Frog frog = playerInfo.ChosenFrog switch
+            {
+                "wren" => new CommonFrog(lily.Position, lily),
+                "vex" => new HeavyFrog(lily.Position, lily),
+                _ => throw new ArgumentException($"There is not such type of frog {playerInfo.ChosenFrog}")
+            };
             map.Spawn(frog);
 
             var player = new Player(playerInfo.playerId, frog);

@@ -1,5 +1,6 @@
 using System.Numerics;
 using Core.Objects.Abstraction;
+using Core.Objects.Frogs;
 
 namespace Core.Objects;
 

@@ -1,4 +1,5 @@
 using Core.Objects;
+using Core.Objects.Frogs;
 
 namespace Core.Match;
 

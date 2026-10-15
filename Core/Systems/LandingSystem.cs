@@ -1,5 +1,6 @@
 using Core.Events;
 using Core.Objects;
+using Core.Objects.Frogs;
 using Core.Systems.Abstraction;
 
 namespace Core.Systems;
