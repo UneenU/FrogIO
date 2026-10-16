@@ -7,8 +7,8 @@ namespace Core.Objects.Frogs;
 public enum FrogState
 {
     SittingOnWaterLily = 1,
-    Swimming = 1 << 1,
-    Jumping = 1 << 2,
+    Jumping = 1 << 1,
+    Swimming = 1 << 2,
     Dead = 1 << 3,
     Attacking = 1 << 4,
 }
@@ -78,7 +78,7 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
 
     public bool IsAlive => !State.HasFlag(FrogState.Dead);
     public bool IsInAir => State.HasFlag(FrogState.Jumping);
-    public bool IsAvailable => (State & (FrogState.SittingOnWaterLily | FrogState.Swimming)) != 0;
+    public bool IsAvailable => (State & (FrogState.Attacking | FrogState.Jumping | FrogState.Dead) ) == 0;
     public bool IsAttacking => State.HasFlag(FrogState.Attacking);
 
     // -------- Публичный API --------
@@ -170,16 +170,25 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
         return true;
     }
 
-    public bool AdvanceAttack(Fly[] caughtFlies)
+    public bool AdvanceAttack(List<GameObject> caughtObjects)
     {
         if (!IsAttacking) return false;
 
-        foreach (var fly in caughtFlies)
+        foreach (var obj in caughtObjects)
+        {
+            if (obj is not Fly fly)
+            {
+                _tongue.State = TongueState.Returning;
+                continue;
+            }
+            
+            if (_tongue.State != TongueState.Forwarding) continue;
             if (!_tongue.CaughtFlies.Contains(fly))
                 _tongue.CaughtFlies.Add(fly);
+        }
 
-        if (_tongue.CaughtFlies.Count > 0
-            || _tongue.RelativeTipPosition.Length() >= _tongue.MaxLength - Constants.Epsilon)
+        if (_tongue.CaughtFlies.Count > 0 ||
+            _tongue.RelativeTipPosition.Length() >= _tongue.MaxLength - Constants.Epsilon)
             _tongue.State = TongueState.Returning;
 
         var delta = _tongue.Speed * (_tongue.State == TongueState.Forwarding ? 1 : -1);
@@ -206,7 +215,7 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
 
     public void Die()
     {
-        State |= FrogState.Dead;
+        State = FrogState.Dead;
         StopMotion();
     }
 
@@ -257,7 +266,6 @@ public sealed class HeavyFrog(
     Vector2 position,
     WaterLily? lily = null)
     : Frog(position, FrogPresets.Heavy, lily);
-
 
 public class Tongue(float length, float speed)
 {
