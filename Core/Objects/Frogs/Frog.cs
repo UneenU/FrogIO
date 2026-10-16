@@ -1,5 +1,6 @@
 using System.Numerics;
 using Core.Objects.Abstraction;
+using Core.Objects.Frogs.Tongues;
 
 namespace Core.Objects.Frogs;
 
@@ -23,7 +24,7 @@ public enum TongueState
 public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
 {
     // -------- Поля --------
-    protected readonly Tongue _tongue;
+    public readonly Tongue Tongue;
     private int _jumpTotalTicks;
 
     // -------- Характеристики вида --------
@@ -35,7 +36,6 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
     public float JumpPeakHeight { get; }
     public int JumpCooldownTicks { get; }
     public float SwimSpeed { get; }
-    public int AttackCooldownTicks { get; }
 
     // -------- Изменяемое состояние --------
     public float Mass { get; protected set; }
@@ -50,7 +50,7 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
     public int NextAttackAvailableTick { get; private set; }
 
     // -------- Конструктор --------
-    protected Frog(Vector2 position, FrogConfig config, WaterLily? lily = null)
+    protected Frog(Vector2 position, FrogConfig config, WaterLily? lily = null, Tongue? tongue = null)
         : base(position, config.Radius)
     {
         // Характеристики вида
@@ -63,22 +63,20 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
         JumpPeakHeight = config.JumpPeakHeight;
         JumpCooldownTicks = config.JumpCooldownTicks;
         SwimSpeed = config.SwimSpeed;
-        AttackCooldownTicks = config.AttackCooldownTicks;
 
         // Стартовое состояние
         Mass = config.Mass;
         Lily = lily;
-        _tongue = new Tongue(config.TongueLength, config.TongueSpeed);
+        Tongue = tongue ?? new PlainTongue(config.TongueLength, config.TongueSpeed);
     }
 
     // -------- Производные свойства --------
-    public Vector2 TonguePosition => Position + _tongue.RelativeTipPosition;
-    public TongueState TongueState => _tongue.State;
-    public IReadOnlyList<Fly> CaughtFlies => _tongue.CaughtFlies;
+    public Vector2 TonguePosition => Tongue.GetTip(this);
+    public TongueState TongueState => Tongue.State;
 
     public bool IsAlive => !State.HasFlag(FrogState.Dead);
     public bool IsInAir => State.HasFlag(FrogState.Jumping);
-    public bool IsAvailable => (State & (FrogState.Attacking | FrogState.Jumping | FrogState.Dead) ) == 0;
+    public bool IsAvailable => (State & (FrogState.Attacking | FrogState.Jumping | FrogState.Dead)) == 0;
     public bool IsAttacking => State.HasFlag(FrogState.Attacking);
 
     // -------- Публичный API --------
@@ -153,70 +151,36 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
 
     public bool TryAttack(Vector2 direction, float distance, int tick)
     {
-        var dist = Math.Clamp(distance, 0f, _tongue.MaxLength);
-
-        if (!IsAvailable
-            || tick < NextAttackAvailableTick
-            || direction.LengthSquared() < Constants.Epsilon
-            || dist < 1e-3f)
-            return false;
+        if (!IsAvailable ||
+            tick < NextAttackAvailableTick ||
+            direction.LengthSquared() < Constants.Epsilon) return false;
 
         Aim(direction);
         StopMotion();
-
-        NextAttackAvailableTick = tick + AttackCooldownTicks;
+        NextAttackAvailableTick = tick + Tongue.CooldownTicks;
         State |= FrogState.Attacking;
-        _tongue.State = TongueState.Forwarding;
+        Tongue.Start(this);
         return true;
-    }
-
-    public bool AdvanceAttack(List<GameObject> caughtObjects)
-    {
-        if (!IsAttacking) return false;
-
-        foreach (var obj in caughtObjects)
-        {
-            if (obj is not Fly fly)
-            {
-                _tongue.State = TongueState.Returning;
-                continue;
-            }
-            
-            if (_tongue.State != TongueState.Forwarding) continue;
-            if (!_tongue.CaughtFlies.Contains(fly))
-                _tongue.CaughtFlies.Add(fly);
-        }
-
-        if (_tongue.CaughtFlies.Count > 0 ||
-            _tongue.RelativeTipPosition.Length() >= _tongue.MaxLength - Constants.Epsilon)
-            _tongue.State = TongueState.Returning;
-
-        var delta = _tongue.Speed * (_tongue.State == TongueState.Forwarding ? 1 : -1);
-        var direction = _tongue.RelativeTipPosition != Vector2.Zero
-            ? _tongue.RelativeTipPosition
-            : Facing;
-        var newTongueLen = Math.Clamp(_tongue.RelativeTipPosition.Length() + delta, 0, _tongue.MaxLength);
-
-        _tongue.RelativeTipPosition = Vector2.Normalize(direction) * newTongueLen;
-
-        Aim(direction);
-
-        return newTongueLen < Constants.Epsilon;
     }
 
     public void EndAttack()
     {
         State &= ~FrogState.Attacking;
-        _tongue.RelativeTipPosition = Vector2.Zero;
-        _tongue.State = TongueState.InMouth;
+    }
 
-        EatFlies();
+    public void Eat(Fly fly)
+    {
+        Mass += fly.Mass;
+        Radius += fly.Mass * 0.01f;
     }
 
     public void Die()
     {
-        State = FrogState.Dead;
+        State |= FrogState.Dead;
+        State &= ~FrogState.Jumping;
         StopMotion();
+        Tongue.Cancel();
+        EndAttack();
     }
 
     public void Respawn(WaterLily lily)
@@ -238,18 +202,7 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
         return true;
     }
 
-    protected virtual void EatFlies()
-    {
-        foreach (var fly in _tongue.CaughtFlies)
-        {
-            Mass += fly.Mass;
-            Radius += fly.Mass * RadiusPerMass;
-        }
-
-        _tongue.CaughtFlies.Clear();
-    }
-
-    private void StopMotion()
+    public void StopMotion()
     {
         Velocity = Vector2.Zero;
         AirTicksRemaining = 0;
@@ -266,12 +219,3 @@ public sealed class HeavyFrog(
     Vector2 position,
     WaterLily? lily = null)
     : Frog(position, FrogPresets.Heavy, lily);
-
-public class Tongue(float length, float speed)
-{
-    public float MaxLength { get; set; } = length;
-    public float Speed { get; set; } = speed;
-    public Vector2 RelativeTipPosition { get; set; } = Vector2.Zero;
-    public List<Fly> CaughtFlies { get; } = [];
-    public TongueState State { get; set; } = TongueState.InMouth;
-}
