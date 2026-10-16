@@ -6,5 +6,5 @@ public interface ILobbyService
     Task<bool> AddUserToLobby(string lobbyId, int userId);
     Task RemoveUserFromLobby(string lobbyId, int userId);
     Task<bool> CloseLobbyAsync(string lobbyId);
-    Task OnMembersReadyAsync(string lobbyId, int userId, bool ready, string heroId);
+    Task OnMembersReadyAsync(string lobbyId, int userId, bool ready, string heroName);
 }

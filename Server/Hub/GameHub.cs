@@ -50,7 +50,7 @@ public class GameHub : Hub<IGameHub>
         return new LobbyState(lobbyId, playerId, 8, members);
     }
 
-    public async Task SetReady(bool ready, string? heroId, string? mode)
+    public async Task SetReady(bool ready, string? heroName, string? mode)
     {
         var playerId = _connectionManager.IdentifyUserByConnection(Context);
         var lobbyId = await _lobbyRepository.FindUserLobbyAsync(playerId);
@@ -58,7 +58,7 @@ public class GameHub : Hub<IGameHub>
         if (lobbyId == null) throw new HubException("lobby doesn't exist");
         _logger.LogInformation($"player {playerId} setting ready {ready} lobby {lobbyId}");
 
-        await _lobbyService.OnMembersReadyAsync(lobbyId, playerId, ready, heroId);
+        await _lobbyService.OnMembersReadyAsync(lobbyId, playerId, ready, heroName);
         
         // поменять в самом лобби значение готовности пользователя
         await Clients.Group(lobbyId).PlayerReadyChanged(playerId, ready);

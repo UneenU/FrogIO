@@ -93,13 +93,13 @@ public record LobbyCreateResponse(string lobbyId);
 
 
 public record HeroDto(
-    string Id, // "wren", "rook", "vex": стабильный ключ, по нему клиент подбирает картинку
-    string Name, // "Wren"
-    string Role, // "Scout" (клиент покажет "THE SCOUT")
+    string Id,
+    string Name,
+    string Role,
     int Hp,
     int Attack,
     int Speed,
-    string Ability // "Ghost step" + описание
+    string Ability 
 );
 
 public interface IHeroCatalog

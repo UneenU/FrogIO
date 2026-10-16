@@ -55,11 +55,11 @@ public class LobbyService : ILobbyService
         return true;
     }
 
-    public async Task OnMembersReadyAsync(string lobbyId, int userId, bool ready, string heroId)
+    public async Task OnMembersReadyAsync(string lobbyId, int userId, bool ready, string heroName)
     {
         var member = await _lobbyRepository.GetLobbyMemberAsync(lobbyId, userId);
         member.SetReady(ready);
-        member.SetChosenHero(heroId);
+        member.SetChosenHero(heroName);
         await _lobbyRepository.SetLobbyMemberAsync(lobbyId, member);
         // var lobby = await _lobbyRepository.GetLobbyByIdAsync(lobbyId);
     }
