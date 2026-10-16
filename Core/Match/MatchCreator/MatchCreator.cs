@@ -67,6 +67,7 @@ public class MatchCreator : IMatchCreator
         events.RegisterHandler(new FrogLandOnWaterLilyEventHandler());
         events.RegisterHandler(new FrogEatFlyEventHandler());
         events.RegisterHandler(new TwoObjectsCollidedEventHandler());
+        events.RegisterHandler(new StorkCaughtFrogEventHandler());
 
         // Системы симуляции
         ISimulationSystem[] systems =
@@ -76,6 +77,7 @@ public class MatchCreator : IMatchCreator
             new CollisionSystem(),
             new LandingSystem(),
             new WaterSplashSystem(),
+            new StorkSystem(),
         ];
 
         //todo: выдать айди нормально

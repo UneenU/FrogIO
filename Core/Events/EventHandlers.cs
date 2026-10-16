@@ -87,3 +87,14 @@ public class FrogEatFlyEventHandler : IEventHandler<FrogEatFlyEvent>
         simulationContext.Map.Despawn(e.Fly);
     }
 }
+
+public class StorkCaughtFrogEventHandler : IEventHandler<StorkCaughtFrogEvent>
+{
+    public void Handle(StorkCaughtFrogEvent e, SimulationContext simulationContext)
+    {
+        // Два аиста могли схватить одну лягушку в один тик: второе событие уже ничего не делает.
+        if (!e.Frog.IsAlive) return;
+
+        e.Frog.Die();
+    }
+}

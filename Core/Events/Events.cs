@@ -1,5 +1,7 @@
 using Core.Objects;
 using Core.Objects.Abstraction;
+using Core.Objects.Frogs;
+using Core.Objects.Storks;
 
 namespace Core.Events;
 
@@ -12,3 +14,5 @@ public record FrogLandOnWaterLilyEvent(Frog Frog, WaterLily WaterLily) : GameEve
 public record TwoObjectsCollidedEvent(ICollidable Obj1, ICollidable Obj2) : GameEvent;
 
 public record FrogEatFlyEvent(Frog Frog, Fly Fly) : GameEvent;
+
+public record StorkCaughtFrogEvent(Stork Stork, Frog Frog) : GameEvent;

@@ -1,5 +1,5 @@
-using Core.Objects;
 using Core.Objects.Frogs;
+using Core.Objects.Storks;
 
 namespace Core.Match;
 
@@ -11,7 +11,8 @@ public record MatchState(
     PadState[] Pads,
     FlyState[] Flies,
     SplashState[] Splashes,
-    PlayerScore[] Scores);
+    PlayerScore[] Scores,
+    StorkState[] Storks);
 
 public record PadState(int Id, float X, float Y, float Radius);
 
@@ -33,3 +34,5 @@ public record FrogInfo(
 public record SplashState(int Id, float X, float Y, float Radius);
 
 public record PlayerScore(int PlayerId, int Score);
+
+public record StorkState(int Id, float X, float Y, float Radius, float Height, float Angle, StorkPhase Phase);
