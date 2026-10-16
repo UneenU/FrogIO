@@ -13,6 +13,7 @@ public class PlainTongue(float length, float speed) : Tongue(length, 4, speed)
             State = TongueState.Returning;
 
         if (State == TongueState.Forwarding)
+        {
             foreach (var fly in ctx.Map.ObjectsInCircle<Fly>(owner.Position + Tip, Width / 2))
             {
                 if (!Caught.Contains(fly))
@@ -21,6 +22,7 @@ public class PlainTongue(float length, float speed) : Tongue(length, 4, speed)
                     Caught.Add(fly);
                 }
             }
+        }
 
         var delta = Speed * (State == TongueState.Forwarding ? 1 : -1);
         var direction = Tip != Vector2.Zero ? Tip : owner.Facing;
@@ -31,6 +33,7 @@ public class PlainTongue(float length, float speed) : Tongue(length, 4, speed)
 
         if (newLength >= Constants.Epsilon) return false;
 
+        EndAttack(owner, ctx);
         return true;
     }
 
