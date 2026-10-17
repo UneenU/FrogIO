@@ -16,11 +16,11 @@ public sealed record StorkSettings
     public float Speed { get; init; } = 1.2f;
     public float SpeedWileAttacking { get; init; } = 0.7f;
     public float CruiseHeight { get; init; } = 5 * 100;
-    public int DescentTicks { get; init; } = 1 * Constants.TicksInSecond;
-    public int AscentTicks { get; init; } = 3 * Constants.TicksInSecond;
+    public int DescentTicks { get; init; } = (int)(0.6f * Constants.TicksInSecond);
+    public int AscentTicks { get; init; } = 2 * Constants.TicksInSecond;
 
     // --- Охота ---
 
-    public float CaptureRadius { get; init; } = 18f;
+    public float CaptureRadius { get; init; } = 25f;
     public float LookAheadDistance => SpeedWileAttacking * DescentTicks;
 }

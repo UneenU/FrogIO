@@ -43,7 +43,7 @@ public sealed class Stork : GameObject
     /// <summary>Точка, куда аист приземлится, если начнёт снижение прямо сейчас.</summary>
     public Vector2 LookAheadPoint => Position + Direction * _settings.LookAheadDistance;
 
-    public bool RouteFinished => Distance >= RouteLength - Constants.Epsilon;
+    public bool RouteFinished => Distance >= RouteLength + Radius - Constants.Epsilon;
 
     /// <summary>
     /// Можно ли начинать снижение: аист ещё не охотился и успеет приземлиться до конца маршрута
