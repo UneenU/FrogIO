@@ -20,6 +20,9 @@ public class AiControllerFactory
 {
     public IAiController<Fly> NewFlyAiController(Fly fly)
     {
+        if (fly is Mosquito mosquito)
+            return new MosquitoAiController(mosquito);
+
         return new FlyAiController(fly);
     }
 

@@ -4,7 +4,7 @@ using Core.Objects.Frogs;
 
 namespace Core.Objects;
 
-public abstract class Fly : GameObject, IMovable, IControllable, ICollidable
+public abstract class Fly : GameObject, IMovable, IControllable
 {
     public string Name { get; }
     public float Mass { get; }
@@ -44,11 +44,5 @@ public abstract class Fly : GameObject, IMovable, IControllable, ICollidable
         
         Facing = Vector2.Normalize(direction);
         Velocity = Facing * FlySpeed;
-    }
-
-    public bool CollidesWith(ICollidable other)
-    {
-        if (other is Fly or Frog) return true;
-        return false;
     }
 }
