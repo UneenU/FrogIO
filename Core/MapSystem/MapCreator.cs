@@ -43,21 +43,17 @@ public class MapCreator
         _creators[typeof(Fly)] = new FlyCreator(_seed);
     }
 
-    public MapSystem.Map Create()
+    public Map Create()
     {
         var random = new Random(_seed);
         var objects = new List<GameObject>();
-        MapSystem.Map map = new MapSystem.Map(_config.Width, _config.Height, objects);
+        Map map = new Map(_config.Width, _config.Height, objects);
 
-        var plan = _config.Spawns
-            .Select(s => (s, _creators[s.Type].MaxSize))
-            .OrderByDescending(x => x.MaxSize);
-
-        foreach (var (spawn, radius) in plan)
+        foreach (var spawn in _config.Spawns)
         {
             for (var i = 0; i < spawn.Count; i++)
             {
-                var position = FindFreePosition(radius, objects, random)
+                var position = FindFreePosition(1, objects, random)
                                ?? throw new InvalidOperationException(
                                    $"Не удалось разместить {spawn.Type.Name} #{i + 1} из {spawn.Count}: " +
                                    $"за {_config.MaxAttemptsPerObject} попыток не найдено свободное место.");
@@ -66,7 +62,7 @@ public class MapCreator
             }
         }
 
-        return new MapSystem.Map(_config.Width, _config.Height, objects);
+        return new Map(_config.Width, _config.Height, objects);
     }
 
     private Vector2? FindFreePosition(float radius, List<GameObject> placed, Random random)
@@ -104,7 +100,7 @@ public class MapCreator
         return false;
     }
 
-    private GameObject CreateInstance(MapSystem.Map map, Type type, Vector2 position)
+    private GameObject CreateInstance(Map map, Type type, Vector2 position)
     {
         return _creators[type].Create(position, map);
     }
@@ -124,43 +120,22 @@ public class MapCreator
 
             if (spawn.Count < 0)
                 throw new ArgumentException($"Отрицательное количество для {spawn.Type.Name}.", nameof(config));
-
-            if (!typeof(GameObject).IsAssignableFrom(spawn.Type) || spawn.Type.IsAbstract)
-                throw new ArgumentException(
-                    $"{spawn.Type.Name} должен быть неабстрактным наследником GameObject.", nameof(config));
         }
     }
 }
 
 public interface ICreator<out T>
-{
-    public float MaxSize { get; }
-    public T Create(Vector2 position, MapSystem.Map map);
+{ 
+    public T Create(Vector2 position, Map map);
 }
-
-// public class FrogCreator(int seed) : ICreator<Frog>
-// {
-//     private readonly Random _random = new(seed);
-//     private const float FrogRadius = 5;
-//     private const float Dif = 4;
-//
-//     public float MaxSize => Dif + FrogRadius;
-//
-//     public Frog Create(Vector2 position, MapSystem.Map map)
-//     {
-//         return new Frog(position, FrogRadius + Dif * _random.NextSingle(), null);
-//     }
-// }
 
 public class LilyCreator(int seed) : ICreator<WaterLily>
 {
     private readonly Random _random = new(seed);
     private const float LilyRadius = 15;
-    private const float Dif = 4;
-
-    public float MaxSize => Dif + LilyRadius;
-
-    public WaterLily Create(Vector2 position, MapSystem.Map map)
+    private const float Dif = 6;
+    
+    public WaterLily Create(Vector2 position, Map map)
     {
         return new WaterLily(position, LilyRadius + Dif * _random.NextSingle());
     }
@@ -169,13 +144,16 @@ public class LilyCreator(int seed) : ICreator<WaterLily>
 public class FlyCreator(int seed) : ICreator<Fly>
 {
     private readonly Random _random = new(seed);
-    private const float FlyRadius = 2.5f;
-    private const float Dif = 0;
-
-    public float MaxSize => Dif + FlyRadius;
-
-    public Fly Create(Vector2 position, MapSystem.Map map)
+    
+    public Fly Create(Vector2 position, Map map)
     {
-        return new Fly(position, FlyRadius + Dif * _random.NextSingle());
+        var value = _random.NextSingle();
+        Fly fly = value switch
+        {
+            _ when value < 0.3 => new Mosquito(position),
+            _ => new PlainFly(position)
+        };
+
+        return fly;
     }
 }
