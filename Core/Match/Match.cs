@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Core.Commands;
 using Core.Events;
 using Core.MapSystem;
@@ -9,7 +10,6 @@ namespace Core.Match;
 public class Match
 {
     
-    // TODO: вернуть в private
     private readonly Map _map;
     private readonly ControlSystem _controlSystem;
     private readonly AiInputSystem _aiSystem;
@@ -49,7 +49,7 @@ public class Match
     
     public MatchState Step(Command[] usersCommands)
     {
-        var ctx = new SimulationContext(_map, Tick, _events);
+        var ctx = new SimulationContext(_map, Tick, _events, Players);
         var commands = _aiSystem.GetAiCommands(ctx);
         commands.AddRange(usersCommands);
  
@@ -70,6 +70,8 @@ public class Match
     {
         var time = Tick * _settings.TickDuration;
         var timeLeft = MathF.Max(0f, _settings.DurationSeconds - time);
-        return MatchStateMapper.Create(_map, Tick, time, timeLeft, _scoreBoard.Snapshot());
+        var state =  MatchStateMapper.Create(_map, Tick, time, timeLeft, _scoreBoard.Snapshot());
+        return state;
     }
+    
 }

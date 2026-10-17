@@ -64,7 +64,6 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
         JumpCooldownTicks = config.JumpCooldownTicks;
         SwimSpeed = config.SwimSpeed;
 
-        // Стартовое состояние
         Mass = config.Mass;
         Lily = lily;
         Tongue = tongue ?? new PlainTongue(config.TongueLength, config.TongueSpeed);
@@ -76,6 +75,7 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
 
     public bool IsAlive => !State.HasFlag(FrogState.Dead);
     public bool IsInAir => State.HasFlag(FrogState.Jumping);
+    public bool IsInWater => State.HasFlag(FrogState.Swimming);
     public bool IsAvailable => (State & (FrogState.Attacking | FrogState.Jumping | FrogState.Dead)) == 0;
     public bool IsAttacking => State.HasFlag(FrogState.Attacking);
 
@@ -176,11 +176,11 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
 
     public void Die()
     {
-        State |= FrogState.Dead;
-        State &= ~FrogState.Jumping;
         StopMotion();
         Tongue.Cancel();
         EndAttack();
+        State |= FrogState.Dead;
+        State &= ~FrogState.Jumping;
     }
 
     public void Respawn(WaterLily lily)
@@ -191,6 +191,7 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
         State = FrogState.SittingOnWaterLily;
         NextJumpAvailableTick = 0;
         NextAttackAvailableTick = 0;
+        
     }
 
     public bool CollidesWith(ICollidable other)
@@ -215,7 +216,7 @@ public sealed class CommonFrog(
     WaterLily? lily = null)
     : Frog(position, FrogPresets.Common, lily);
 
-public sealed class HeavyFrog(
+public sealed class StickyFrog(
     Vector2 position,
     WaterLily? lily = null)
-    : Frog(position, FrogPresets.Heavy, lily);
+    : Frog(position, FrogPresets.Heavy, lily, new StickyTongue(100, 5, 3));
