@@ -6,8 +6,6 @@ namespace Core.Match;
 
 public sealed class ScoreBoard : IEventHandler<FrogEatFlyEvent>
 {
-    private const int PointsPerFly = 1;
-
     private readonly Player[] _players;
     private readonly Dictionary<int, int> _scores = new();
 
@@ -24,7 +22,7 @@ public sealed class ScoreBoard : IEventHandler<FrogEatFlyEvent>
         var player = _players.FirstOrDefault(p => ReferenceEquals(p.Controllable, e.Frog));
         if (player is null) return;
 
-        _scores[player.PlayerId] += PointsPerFly;
+        _scores[player.PlayerId] += e.Fly.Points;
     }
 
     public PlayerScore[] Snapshot() =>

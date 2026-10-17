@@ -4,13 +4,12 @@ using Core.Objects.Frogs;
 
 namespace Core.Objects;
 
-public sealed class Fly : GameObject, IMovable, IControllable
+public abstract class Fly : GameObject, IMovable, IControllable, ICollidable
 {
-    public const float FlyHeight = 10f;
-
-    public float Mass { get; } = 30;
-
-    public float FlySpeed { get; } = 0.7f;
+    public string Name { get; }
+    public float Mass { get; }
+    public float FlySpeed { get; }
+    public int Points { get; }
 
     public Vector2 Facing { get; private set; } = Vector2.UnitY;
     public Vector2 Velocity { get; private set; }
@@ -18,9 +17,13 @@ public sealed class Fly : GameObject, IMovable, IControllable
     
     public Frog? CaughtBy { get; set; }
 
-    public Fly(Vector2 position, float radius) : base(position, radius)
+    protected Fly(Vector2 position, FlyConfig config) : base(position, config.Radius)
     {
-        Height = FlyHeight;
+        Name = config.Name;
+        Mass = config.Mass;
+        Points = config.Points;
+        FlySpeed = config.FlySpeed;
+        Height = FlyConfig.FlyHeight;
     }
 
     public void MoveBy(Vector2 delta) => Position += delta;
@@ -30,7 +33,7 @@ public sealed class Fly : GameObject, IMovable, IControllable
         Drift += deltaV;
     }
 
-    public void Steer(Vector2 direction)
+    public virtual void Steer(Vector2 direction)
     {
         if (CaughtBy is not null ||
             direction.LengthSquared() < Constants.Epsilon)
@@ -41,5 +44,11 @@ public sealed class Fly : GameObject, IMovable, IControllable
         
         Facing = Vector2.Normalize(direction);
         Velocity = Facing * FlySpeed;
+    }
+
+    public bool CollidesWith(ICollidable other)
+    {
+        if (other is Fly or Frog) return true;
+        return false;
     }
 }
