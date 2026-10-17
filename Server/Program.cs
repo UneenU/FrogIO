@@ -31,9 +31,9 @@ builder.Services.AddScoped<ILobbyService, LobbyService>();
 builder.Services.AddScoped<MapCreator>(_ =>
 {
     MapConfig config =
-        new MapConfig(400, 300, [
-            new ObjectSpawn(typeof(WaterLily), 30),
-            new ObjectSpawn(typeof(Fly), 40)
+        new MapConfig(700, 500, [
+            new ObjectSpawn(typeof(WaterLily), 90),
+            new ObjectSpawn(typeof(Fly), 60)
         ]);
     return new MapCreator(config, 42);
 });

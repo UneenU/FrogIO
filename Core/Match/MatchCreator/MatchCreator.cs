@@ -48,7 +48,7 @@ public class MatchCreator : IMatchCreator
             Frog frog = playerInfo.ChosenFrog switch
             {
                 "wren" => new CommonFrog(lily.Position, lily),
-                "vex" => new HeavyFrog(lily.Position, lily),
+                "vex" => new StickyFrog(lily.Position, lily),
                 _ => throw new ArgumentException($"There is not such type of frog {playerInfo.ChosenFrog}")
             };
             map.Spawn(frog);
@@ -72,6 +72,8 @@ public class MatchCreator : IMatchCreator
         // Системы симуляции
         ISimulationSystem[] systems =
         [
+            new FlowSystem(),
+            new RespawnSystem(),
             new MovementSystem(),
             new AttackSystem(),
             new CollisionSystem(),

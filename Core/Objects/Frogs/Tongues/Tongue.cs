@@ -22,7 +22,7 @@ public abstract class Tongue(float length, float width, float speed)
 
     public virtual Vector2 GetTip(Frog owner)
     {
-        return owner.Position + Tip;
+        return owner.Position + owner.Radius*owner.Facing + Tip;
     }
 
     public virtual void EndAttack(Frog owner, SimulationContext ctx)
