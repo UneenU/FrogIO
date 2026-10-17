@@ -37,8 +37,4 @@ public class PlainTongue(float length, float speed) : Tongue(length, 4, speed)
         return true;
     }
 
-    public override TongueInfo ToInfo(Frog owner)
-    {
-        throw new NotImplementedException();
-    }
 }

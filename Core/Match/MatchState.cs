@@ -1,4 +1,5 @@
 using Core.Objects.Frogs;
+using Core.Objects.Frogs.Tongues;
 using Core.Objects.Storks;
 
 namespace Core.Match;
@@ -28,7 +29,8 @@ public record FrogInfo(
     int? PadId,
     float TongueX,
     float TunguqY,
-    TongueState Tongue);
+    TongueState Tongue,
+    TongueInfo TongueDetails);
 
 
 public record SplashState(int Id, float X, float Y, float Radius);

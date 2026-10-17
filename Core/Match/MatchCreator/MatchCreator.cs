@@ -49,6 +49,7 @@ public class MatchCreator : IMatchCreator
             {
                 "wren" => new CommonFrog(lily.Position, lily),
                 "vex" => new StickyFrog(lily.Position, lily),
+                "rook" => new ShovelFrog(lily.Position, lily),
                 _ => throw new ArgumentException($"There is not such type of frog {playerInfo.ChosenFrog}")
             };
             map.Spawn(frog);

@@ -99,7 +99,7 @@ public record HeroDto(
     int Hp,
     int Attack,
     int Speed,
-    string Ability 
+    string Ability
 );
 
 public interface IHeroCatalog
@@ -114,7 +114,8 @@ public class HeroCatalog : IHeroCatalog
         return
         [
             new HeroDto("wren", "wren", "Scout", 100, 100, 100, "NONE"),
-            new HeroDto("vex", "vex", "____", 1020, 10, 10, "NONE")
+            new HeroDto("vex", "vex", "____", 1020, 10, 10, "NONE"),
+            new HeroDto("rook", "rook", "____", 10, 10, 10, "NONE")
         ];
     }
 }

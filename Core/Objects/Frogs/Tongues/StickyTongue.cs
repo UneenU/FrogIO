@@ -37,8 +37,4 @@ public class StickyTongue(float length, float width, float speed) : Tongue(lengt
         return true;
     }
 
-    public override TongueInfo ToInfo(Frog owner)
-    {
-        throw new NotImplementedException();
-    }
 }

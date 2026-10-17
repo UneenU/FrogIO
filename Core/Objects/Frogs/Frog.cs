@@ -210,13 +210,3 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
         Height = 0;
     }
 }
-
-public sealed class CommonFrog(
-    Vector2 position,
-    WaterLily? lily = null)
-    : Frog(position, FrogPresets.Common, lily);
-
-public sealed class StickyFrog(
-    Vector2 position,
-    WaterLily? lily = null)
-    : Frog(position, FrogPresets.Heavy, lily, new StickyTongue(100, 5, 3));

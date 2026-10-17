@@ -37,7 +37,8 @@ public static class MatchStateMapper
             frog.Lily?.Id,
             frog.TonguePosition.X,
             frog.TonguePosition.Y,
-            frog.TongueState);
+            frog.TongueState,
+            frog.Tongue.ToInfo(frog));
     }
 
     private static SplashState ToSplashState(WaterSplash splash)
