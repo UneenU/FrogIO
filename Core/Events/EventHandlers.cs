@@ -37,7 +37,6 @@ public class FrogLandOnWaterLilyEventHandler : IEventHandler<FrogLandOnWaterLily
 /// </summary>
 public sealed class TwoObjectsCollidedEventHandler : IEventHandler<TwoObjectsCollidedEvent>
 {
-    private const float Epsilon = 1e-6f;
 
     /// <summary>1 = абсолютно упругий удар, 0 = абсолютно неупругий.</summary>
     private const float Restitution = 1f;
@@ -50,7 +49,7 @@ public sealed class TwoObjectsCollidedEventHandler : IEventHandler<TwoObjectsCol
         var totalInvMass = a.InverseMass + b.InverseMass;
         var offset = a.Obj.Position - b.Obj.Position;
         var distance = offset.Length();
-        var n = distance > Epsilon ? offset / distance : Vector2.UnitX;
+        var n = distance > Constants.Epsilon ? offset / distance : Vector2.UnitX;
 
         var penetration = a.Obj.Radius + b.Obj.Radius - distance;
         if (penetration > 0)
@@ -64,6 +63,7 @@ public sealed class TwoObjectsCollidedEventHandler : IEventHandler<TwoObjectsCol
             return;
 
         var impulse = -(1 + Restitution) * approachSpeed / totalInvMass;
+        Console.WriteLine($"Impulse: {impulse}");
         a.Movable?.AddImpulse(n * (impulse * a.InverseMass));
         b.Movable?.AddImpulse(-n * (impulse * b.InverseMass));
     }
@@ -76,7 +76,7 @@ public sealed class TwoObjectsCollidedEventHandler : IEventHandler<TwoObjectsCol
         public bool IsStatic => Movable is null;
         public Vector2 Velocity => Movable?.TotalVelocity ?? Vector2.Zero;
 
-        public float InverseMass => Movable is null ? 0f : 1f / (Obj.Radius * Obj.Radius);
+        public float InverseMass => Movable is null ? 0f : 1f / Obj.Mass;
     }
 }
 
@@ -92,9 +92,9 @@ public class StorkCaughtFrogEventHandler : IEventHandler<StorkCaughtFrogEvent>
 {
     public void Handle(StorkCaughtFrogEvent e, SimulationContext simulationContext)
     {
-        // Два аиста могли схватить одну лягушку в один тик: второе событие уже ничего не делает.
         if (!e.Frog.IsAlive) return;
 
         e.Frog.Die();
+        simulationContext.Map.Despawn(e.Frog);
     }
 }

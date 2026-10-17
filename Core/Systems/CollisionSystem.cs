@@ -10,19 +10,17 @@ public sealed class CollisionSystem : ISimulationSystem
 {
     private const float ContactTolerance = 1e-3f;
  
-    private readonly List<ICollidable> _bodies = new();
  
     public void Update(SimulationContext ctx)
     {
-        _bodies.Clear();
-        _bodies.AddRange(ctx.Map.Query<ICollidable>());
+        var bodies = ctx.Map.Query<ICollidable>();
  
-        for (var i = 0; i < _bodies.Count; i++)
+        for (var i = 0; i < bodies.Count; i++)
         {
-            for (var j = i + 1; j < _bodies.Count; j++)
+            for (var j = i + 1; j < bodies.Count; j++)
             {
-                var a = _bodies[i];
-                var b = _bodies[j];
+                var a = bodies[i];
+                var b = bodies[j];
  
                 if (Overlap(a, b) && CanCollide(a, b))
                     ctx.Events.Publish(new TwoObjectsCollidedEvent(a, b));
