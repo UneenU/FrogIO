@@ -52,7 +52,7 @@ public class MatchService : IMatchService
     {
         if (Runtimes.TryRemove(matchId, out var runtime))
         {
-            _ = runtime.DisposeAsync(); // не блокируем вызывающего
+            _ = runtime.InterruptAsync();
         }
     }
 

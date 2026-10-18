@@ -8,6 +8,7 @@ public record MatchState(
     int Tick,
     float Time,
     float TimeLeft,
+    bool IsEnded,
     FrogInfo[] Frogs,
     PadState[] Pads,
     FlyState[] Flies,

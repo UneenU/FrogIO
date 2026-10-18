@@ -11,6 +11,7 @@ public static class MatchStateMapper
         new(tick,
             time,
             timeLeft,
+            timeLeft <= 0,
             map.Query<Frog>().Select(ToFrogState).ToArray(),
             map.Query<WaterLily>().Select(ToPadState).ToArray(),
             map.Query<Fly>().Select(ToFlyState).ToArray(),

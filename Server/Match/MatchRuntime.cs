@@ -1,14 +1,16 @@
+using System.Diagnostics;
 using System.Threading.Channels;
 using Core;
 using Core.Commands;
+using Core.Match;
 using Microsoft.AspNetCore.SignalR;
 using Server.Hub;
 
 namespace Server.Match;
 
-public class MatchRuntime : IAsyncDisposable
+public class MatchRuntime
 {
-    private Core.Match.Match _match;
+    private readonly Core.Match.Match _match;
     private readonly IHubContext<GameHub, IGameHub> _hubContext;
     private readonly ILogger _logger;
     private readonly CancellationTokenSource _cts = new();
@@ -60,23 +62,30 @@ public class MatchRuntime : IAsyncDisposable
         {
             while (await timer.WaitForNextTickAsync(_cts.Token))
             {
-                _logger.LogInformation($"match is running, tick {tick}");
+                var stopwatch = Stopwatch.StartNew();
+                
                 var commands = DrainCommands().Select(x => x.Item2).ToArray();
                 var state = _match.Step(commands);
                 tick++;
+                
+                stopwatch.Stop();
+                _logger.LogInformation($"match is running, tick {tick} took {stopwatch.ElapsedMilliseconds}ms");
+
+                if (_match.IsEnded)
+                {
+                    await NotifyPlayersAboutMatchEnding(_match.GetResult());
+                    return;
+                }
 
                 if (tick % SendEveryNTicks == 0)
                 {
-                    await _hubContext.Clients
-                        .Group(_match.Id)
-                        .UpdateWorldState(state);
+                    await NotifyPlayersAboutMatchState(state);
                 }
             }
         }
         catch (OperationCanceledException)
         {
-            /* нормальное завершение */
-            // создание и возврат MatchResult...
+            await NotifyPlayersAboutMatchEnding(_match.GetResult());
         }
         catch (Exception ex)
         {
@@ -84,13 +93,24 @@ public class MatchRuntime : IAsyncDisposable
         }
     }
 
-    public async ValueTask DisposeAsync()
+    public async ValueTask InterruptAsync()
     {
         await _cts.CancelAsync();
         if (_loopTask != null) await _loopTask;
         _cts.Dispose();
+    }
+
+    private async Task NotifyPlayersAboutMatchEnding(MatchResult result)
+    {
         await _hubContext.Clients
             .Group(_match.Id)
-            .MatchEnded(new MatchResult());
+            .MatchEnded(result);
+    }
+
+    private async Task NotifyPlayersAboutMatchState(MatchState state)
+    {
+        await _hubContext.Clients
+            .Group(_match.Id)
+            .UpdateWorldState(state);
     }
 }

@@ -17,12 +17,14 @@ public class Match
     private readonly EventDispatcher _events;
     private readonly MatchSettings _settings;
     private readonly ScoreBoard _scoreBoard;
+    private MatchState _lastState;
  
     public Player[] Players { get; }
     public int Tick { get; private set; }
     public string Id { get; }
     public float WorldWidth => _map.Width;
     public float WorlHeight => _map.Height;
+    public bool IsEnded => _lastState?.IsEnded ?? false;
     
 
     public Match(
@@ -49,6 +51,8 @@ public class Match
     
     public MatchState Step(Command[] usersCommands)
     {
+        if (IsEnded) return _lastState;
+        
         var ctx = new SimulationContext(_map, Tick, _events, Players);
         var commands = _aiSystem.GetAiCommands(ctx);
         commands.AddRange(usersCommands);
@@ -62,8 +66,15 @@ public class Match
         _map.ApplyPendingChanges();
         Tick++;
 
-        return BuildState();
+        var state = BuildState();
+        _lastState = state;
+        return state;
     }
+
+    public MatchResult GetResult()
+    {
+        return new MatchResult{Scores = _scoreBoard.Snapshot()};
+    } 
     
     
     private MatchState BuildState()
@@ -74,4 +85,9 @@ public class Match
         return state;
     }
     
+}
+
+public record MatchResult
+{
+    public PlayerScore[] Scores {get; init; }
 }
