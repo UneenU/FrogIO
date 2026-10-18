@@ -1,3 +1,4 @@
+using System.Numerics;
 using Core.Objects;
 using Core.Objects.Abstraction;
 using Core.Objects.Frogs;
@@ -16,3 +17,5 @@ public record TwoObjectsCollidedEvent(ICollidable Obj1, ICollidable Obj2) : Game
 public record FrogEatFlyEvent(Frog Frog, Fly Fly) : GameEvent;
 
 public record StorkCaughtFrogEvent(Stork Stork, Frog Frog) : GameEvent;
+
+public record ObjectHitMapBorderEvent(GameObject Obj, Vector2 P1, Vector2 P2) : GameEvent;

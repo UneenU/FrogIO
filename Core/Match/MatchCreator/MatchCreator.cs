@@ -64,6 +64,7 @@ public class MatchCreator : IMatchCreator
 
         // Собыийная модель
         var events = new EventDispatcher();
+        events.RegisterHandler(new ObjectHitMapBorderEventHandler());
         events.RegisterHandler(new FrogFallInWaterEventHandler());
         events.RegisterHandler(new FrogLandOnWaterLilyEventHandler());
         events.RegisterHandler(new FrogEatFlyEventHandler());

@@ -14,12 +14,12 @@ public sealed record FrogConfig
     // --- Прыжки ---
     public float JumpSpeed { get; init; } = 1.5f;
     public float MaxJumpDistance { get; init; } = 100f;
-    public float MaxWaterJumpDistance { get; init; } = 50f;
+    public float MaxWaterJumpDistance { get; init; } = 70f;
     public float JumpPeakHeight { get; init; } = 20f;
     public int JumpCooldownTicks { get; init; } = 60;
 
     // --- Плавание ---
-    public float SwimSpeed { get; init; } = 0.6f;
+    public float SwimSpeed { get; init; } = 0.8f;
 
     // --- Атака ---
     public int AttackCooldownTicks { get; init; } = 60;
@@ -39,7 +39,8 @@ public static class FrogPresets
         TongueLength = 120f,
         Radius = 6f,
         Mass = 600f,
-        SwimSpeed = 0.3f,
+        SwimSpeed = 0.6f,
         MaxJumpDistance = 60f,
+        MaxWaterJumpDistance = 50f
     };
 }

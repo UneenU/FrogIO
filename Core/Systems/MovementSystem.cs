@@ -1,4 +1,5 @@
 using System.Numerics;
+using Core.Events;
 using Core.Objects;
 using Core.Objects.Abstraction;
 using Core.Objects.Frogs;
@@ -6,13 +7,8 @@ using Core.Systems.Abstraction;
 
 namespace Core.Systems;
 
-/// <summary>
-/// Кинематика: смещение = Velocity (единицы за тик), урезанное ограничениями.
-/// Объекты сами позицию не меняют: система считает смещение и просит применить его через MoveBy.
-/// </summary>
 public sealed class MovementSystem() : ISimulationSystem
 {
-    // Смещения, реально применённые в этом тике (по Id объекта). Нужны, чтобы перевозить пассажиров.
     private readonly Dictionary<GameObject, Vector2> _applied = new();
 
     public void Update(SimulationContext ctx)
@@ -20,6 +16,7 @@ public sealed class MovementSystem() : ISimulationSystem
         _applied.Clear();
         var objects = ctx.Map.GameObjects;
 
+        // Мухи двигаются за языком лягушки
         foreach (var fly in ctx.Map.Query<Fly>())
         {
             if (fly.CaughtBy is null) continue;
@@ -32,6 +29,24 @@ public sealed class MovementSystem() : ISimulationSystem
         {
             if (obj is IMovable movable && PlatformOf(obj) is null)
                 _applied[obj] = Apply(obj, movable, movable.TotalVelocity, ctx);
+            
+            // соударения с границами карты
+            Vector2[] mapCorners =
+            [
+                new(0, 0),
+                new(ctx.Map.Width, 0),
+                new(ctx.Map.Width, ctx.Map.Height),
+                new(0, ctx.Map.Height)
+            ];
+            var prev = mapCorners[3];
+            for (int j = 0; j < 4; j++)
+            {
+                if (Geometry.Geometry.DistanceToSegment(prev, mapCorners[j], obj.Position) < obj.Radius)
+                {
+                    ctx.Events.Publish(new ObjectHitMapBorderEvent(obj, prev, mapCorners[j]));
+                }
+                prev = mapCorners[j];
+            }
         }
 
         // Фаза 2: пассажиры едут вместе с платформой. Собственная скорость тоже учитывается.
@@ -42,7 +57,6 @@ public sealed class MovementSystem() : ISimulationSystem
         }
     }
 
-    /// <summary>Объект, который везёт obj в этом тике (сейчас: кувшинка под сидящей лягушкой).</summary>
     private static GameObject? PlatformOf(GameObject obj) =>
         obj is Frog { Lily: GameObject lily } ? lily : null;
 

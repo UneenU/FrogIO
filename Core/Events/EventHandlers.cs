@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using Core.Objects;
 using Core.Objects.Abstraction;
 using Core.Systems;
@@ -16,8 +17,6 @@ public class FrogFallInWaterEventHandler : IEventHandler<FrogFallInWaterEvent>
     public void Handle(FrogFallInWaterEvent e, SimulationContext simulationContext)
     {
         var frog = e.Frog;
-        
-        //TODO: починить id
         var splash = new WaterSplash(frog.Position, frog.Radius, 3 * frog.Radius, frog.Mass * 0.1f);
         simulationContext.Map.Spawn(splash);
     }
@@ -31,13 +30,9 @@ public class FrogLandOnWaterLilyEventHandler : IEventHandler<FrogLandOnWaterLily
     }
 }
 
-/// <summary>
-/// Реакция на столкновение двух кругов: упругий удар вдоль нормали + раздвижка пересечения.
-/// Недвижимый объект (не IMovable) ведёт себя как стена бесконечной массы.
-/// </summary>
+
 public sealed class TwoObjectsCollidedEventHandler : IEventHandler<TwoObjectsCollidedEvent>
 {
-
     /// <summary>1 = абсолютно упругий удар, 0 = абсолютно неупругий.</summary>
     private const float Restitution = 1f;
 
@@ -63,7 +58,6 @@ public sealed class TwoObjectsCollidedEventHandler : IEventHandler<TwoObjectsCol
             return;
 
         var impulse = -(1 + Restitution) * approachSpeed / totalInvMass;
-        Console.WriteLine($"Impulse: {impulse}");
         a.Movable?.AddImpulse(n * (impulse * a.InverseMass));
         b.Movable?.AddImpulse(-n * (impulse * b.InverseMass));
     }
@@ -96,5 +90,20 @@ public class StorkCaughtFrogEventHandler : IEventHandler<StorkCaughtFrogEvent>
 
         e.Frog.Die();
         simulationContext.Map.Despawn(e.Frog);
+    }
+}
+
+
+// TODO: переделать
+public class ObjectHitMapBorderEventHandler : IEventHandler<ObjectHitMapBorderEvent>
+{
+    public void Handle(ObjectHitMapBorderEvent e, SimulationContext simulationContext)
+    {
+        var obj = e.Obj;
+        if (obj is not IMovable movable) return;
+
+        var p = Geometry.Geometry.ClosestPointOnSegment(e.P1, e.P2, obj.Position);
+        var dir = Vector2.Normalize(obj.Position - p);
+        movable.MoveBy(dir * (obj.Radius - Geometry.Geometry.DistanceToSegment(e.P1, e.P2, obj.Position)));
     }
 }
