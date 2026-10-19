@@ -25,4 +25,13 @@ public static class FlyPresets
         Points = 2,
         FlySpeed = 0.7f
     };
+
+    public static FlyConfig Firefly => new FlyConfig
+    {
+        Name = "firefly",
+        Radius = 2.5f,
+        Mass = 15f,
+        Points = 3,
+        FlySpeed = 0.3f
+    };
 }

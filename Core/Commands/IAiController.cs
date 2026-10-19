@@ -23,6 +23,9 @@ public class AiControllerFactory
         if (fly is Mosquito mosquito)
             return new MosquitoAiController(mosquito);
 
+        if (fly is Firefly firefly)
+            return new FireflyAiController(firefly);
+
         return new FlyAiController(fly);
     }
 

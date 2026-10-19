@@ -23,7 +23,7 @@ public static class MatchStateMapper
         new(lily.Id, lily.Position.X, lily.Position.Y, lily.Radius);
 
     private static FlyState ToFlyState(Fly fly) =>
-        new(fly.Id, fly.Position.X, fly.Position.Y, fly.Radius, AngleOf(fly.Facing));
+        new(fly.Id, fly.Name, fly.Position.X, fly.Position.Y, fly.Radius, AngleOf(fly.Facing));
 
     private static FrogInfo ToFrogState(Frog frog)
     {

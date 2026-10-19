@@ -18,7 +18,7 @@ public record MatchState(
 
 public record PadState(int Id, float X, float Y, float Radius);
 
-public record FlyState(int Id, float X, float Y, float Radius, float Angle);
+public record FlyState(int Id, string Type, float X, float Y, float Radius, float Angle);
 
 public record FrogInfo(
     int Id,

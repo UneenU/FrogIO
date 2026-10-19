@@ -1,18 +1,11 @@
-using System.Collections.Concurrent;
-using Core;
 using Core.Commands;
 using Core.MapSystem;
-using Core.Match;
 using Core.Match.MatchCreator;
 using Core.Objects;
-using Microsoft.AspNetCore.Components.RenderTree;
-using Microsoft.AspNetCore.SignalR;
-using Server;
 using Server.ConnectionManager;
 using Server.Hub;
 using Server.Lobby.LobbyRepository;
 using Server.Lobby.LobbyService;
-using Server.Match;
 using Server.Match.MatchRepository;
 using Server.Match.MatchService;
 using StackExchange.Redis;
@@ -31,9 +24,9 @@ builder.Services.AddScoped<ILobbyService, LobbyService>();
 builder.Services.AddScoped<MapCreator>(_ =>
 {
     MapConfig config =
-        new MapConfig(700, 500, [
-            new ObjectSpawn(typeof(WaterLily), 90),
-            new ObjectSpawn(typeof(Fly), 60)
+        new MapConfig(400, 400, [
+            new ObjectSpawn(typeof(WaterLily), 40),
+            new ObjectSpawn(typeof(Fly), 0)
         ]);
     return new MapCreator(config, 42);
 });
@@ -113,9 +106,9 @@ public class HeroCatalog : IHeroCatalog
     {
         return
         [
-            new HeroDto("wren", "wren", "Scout", 100, 100, 100, "NONE"),
-            new HeroDto("vex", "vex", "____", 1020, 10, 10, "NONE"),
-            new HeroDto("rook", "rook", "____", 10, 10, 10, "NONE")
+            new HeroDto("wren", "wren", "Scout", 100, 100, 10, "NONE"),
+            new HeroDto("vex", "vex", "____", 100, 100, 10, "NONE"),
+            new HeroDto("rook", "rook", "____", 100, 100, 10, "NONE")
         ];
     }
 }
