@@ -1,12 +1,16 @@
 using System.Numerics;
+using Core.Match;
 using Core.Objects;
 using Core.Objects.Abstraction;
 using Core.Objects.Frogs;
 using Core.Objects.Storks;
+using Core.Systems;
 
 namespace Core.Events;
 
 public abstract record GameEvent{}
+
+public abstract record ClientEvent {}
 
 public record FrogFallInWaterEvent(Frog Frog) : GameEvent;
 
@@ -19,3 +23,7 @@ public record FrogEatFlyEvent(Frog Frog, Fly Fly) : GameEvent;
 public record StorkCaughtFrogEvent(Stork Stork, Frog Frog) : GameEvent;
 
 public record ObjectHitMapBorderEvent(GameObject Obj, Vector2 P1, Vector2 P2) : GameEvent;
+
+public record PlayerGetNewLevelEvent(int PlayerId, LevelListPosition[] Positions) : ClientEvent;
+
+public record ObjectOutOffTheMap(GameObject Obj) : GameEvent;

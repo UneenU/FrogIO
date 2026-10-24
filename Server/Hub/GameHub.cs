@@ -9,7 +9,7 @@ using PlayerInfo = Core.Match.MatchCreator.PlayerInfo;
 
 namespace Server.Hub;
 
-public class GameHub : Hub<IGameHub>
+public class GameHub : Hub<IGameHubClient>
 {
     private readonly ILobbyService _lobbyService;
     private readonly IConnectionManager _connectionManager;
@@ -44,7 +44,7 @@ public class GameHub : Hub<IGameHub>
         // _connectionManager.MapConnectionToGame(gamerId, lobbyId);
 
         var player = await _lobbyRepository.GetLobbyMemberAsync(lobbyId, playerId);
-        await Clients.Group(lobbyId).PlayerJoinedTheLobby(player);
+        await Clients.Group(lobbyId).PlayerJoinedTheLobby(player.ToDto());
 
         var members = await _lobbyRepository.GetLobbyMembersAsync(lobbyId);
         return new LobbyState(lobbyId, playerId, 8, members);
@@ -77,11 +77,10 @@ public class GameHub : Hub<IGameHub>
 
             // удалить все соединения пользователя, найдя их через IConnectionManager
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, lobbyId);
-            await Clients.Group(lobbyId).PlayerLeftTheLobby(player);
+            await Clients.Group(lobbyId).PlayerLeftTheLobby(player.ToDto());
         }
     }
 
-    // пока не проверяем
     public async Task HandleCommandAsync(Input input)
     {
         _logger.LogInformation("Handling command");
@@ -113,7 +112,7 @@ public class GameHub : Hub<IGameHub>
         await _lobbyService.CloseLobbyAsync(lobbyId);
         foreach (var player in players)
         {
-            var connectionId = _connectionManager.GetConnectionId(player.playerId);
+            var connectionId = _connectionManager.GetConnectionId(player.PlayerId);
             await Groups.AddToGroupAsync(connectionId, matchId);
             await Groups.RemoveFromGroupAsync(connectionId, lobbyId);
             // убрать пользователя из группы по лобби, добавить в группу по матчу
@@ -133,7 +132,7 @@ public class GameHub : Hub<IGameHub>
             await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId);
 
             var player = await _lobbyRepository.GetLobbyMemberAsync(lobbyId, playerId);
-            await Clients.Group(lobbyId).PlayerReturnedInTheLobby(player);
+            await Clients.Group(lobbyId).PlayerReturnedInTheLobby(player.ToDto());
         }
     }
 

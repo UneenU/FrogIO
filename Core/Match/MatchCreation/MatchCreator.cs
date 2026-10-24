@@ -36,6 +36,7 @@ public class MatchCreator : IMatchCreator
             var aiController = _factory.NewFlyAiController(fly);
             aiControllers.Add(aiController);
         }
+
         var aiSystem = new AiInputSystem(aiControllers);
 
         // добавление лягушек
@@ -54,13 +55,14 @@ public class MatchCreator : IMatchCreator
             };
             map.Spawn(frog);
 
-            var player = new Player(playerInfo.playerId, frog);
+            var player = new Player(playerInfo.PlayerId, frog);
             players[i] = player;
         }
 
         map.ApplyPendingChanges();
 
         var control = new ControlSystem();
+        var levelSystem = new LevelingSystem();
 
         // Собыийная модель
         var events = new EventDispatcher();
@@ -70,26 +72,28 @@ public class MatchCreator : IMatchCreator
         events.RegisterHandler(new FrogEatFlyEventHandler());
         events.RegisterHandler(new TwoObjectsCollidedEventHandler());
         events.RegisterHandler(new StorkCaughtFrogEventHandler());
+        events.RegisterHandler(levelSystem);
 
         // Системы симуляции
         ISimulationSystem[] systems =
         [
-            new FlowSystem(),
+            new FlySpawnSystem(aiSystem, _factory, random: new Random(_random.Next())),
             new RespawnSystem(),
-            new MovementSystem(),
-            new AttackSystem(),
             new CollisionSystem(),
+            // new FlowSystem(),
             new LandingSystem(),
+            new AttackSystem(),
             new WaterSplashSystem(),
             new StorkSystem(),
+            new MovementSystem(new FlowSystem()),
+            new EffectSystem()
         ];
 
-        //todo: выдать айди нормально
         var id = Guid.NewGuid();
-        var match = new Match(id.ToString(), map, players.ToArray(), control, aiSystem, systems, events);
+        var match = new Match(id.ToString(), map, players.ToArray(), control, levelSystem, aiSystem, systems, events);
 
         return match;
     }
 }
 
-public record PlayerInfo(int playerId, string ChosenFrog);
+public record PlayerInfo(int PlayerId, string ChosenFrog);

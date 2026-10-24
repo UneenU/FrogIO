@@ -16,9 +16,7 @@ public sealed class ControlSystem()
             Apply(command, ctx);
         }
     }
-    
 
-    /// <summary>Что значит ввод для конкретного вида тела. Новое животное = новая ветка.</summary>
     private static void Apply(Command command, SimulationContext ctx)
     {
         switch (command.Controllable)
@@ -36,27 +34,21 @@ public sealed class ControlSystem()
     {
         var direction = DirectionTo(frog, input.Target);
 
-        //TODO Тут должна быть такая логика: лягушка смотрит в желаемом направлении,
-        // только если она сидит на кувшинке (иначе она и так смотрит, куда ей нужно)
         if (frog.Velocity == Vector2.Zero)
             frog.Aim(direction);
-
-        if (input.Wants(CommandButtons.Move))
-        {
-            bool lilyAtTarget = ctx.Map.ObjectsAtPoint<WaterLily>(input.Target).Length > 0;
-            if (frog.TryStartJump(direction, direction.Length(), ctx.Tick, lilyAtTarget))
-            {
-                // TODO: если TryStartJump вернул true, опубликовать событие старта прыжка для клиентов.
-            }
-            else
-            {
-                frog.Swim(direction);
-            }
-        }
-
+        
         if (input.Wants(CommandButtons.Attack))
         {
             frog.TryAttack(direction, direction.Length(), ctx.Tick);
+        }
+
+        if (input.Wants(CommandButtons.Move))
+        {
+            var lily = ctx.Map.ObjectsAtPoint<WaterLily>(input.Target).FirstOrDefault();
+            if (lily != null)
+                frog.SetTargetToMove(lily);
+            else
+                frog.SetTargetToMove(input.Target);
         }
     }
 

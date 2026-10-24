@@ -38,9 +38,7 @@ public class MapCreator
 
     private void RegisterCreators()
     {
-        // _creators[typeof(Frog)] = new FrogCreator(_seed);
         _creators[typeof(WaterLily)] = new LilyCreator(_seed);
-        _creators[typeof(Fly)] = new FlyCreator(_seed);
     }
 
     public Map Create()
@@ -138,22 +136,5 @@ public class LilyCreator(int seed) : ICreator<WaterLily>
     public WaterLily Create(Vector2 position, Map map)
     {
         return new WaterLily(position, LilyRadius + Dif * _random.NextSingle());
-    }
-}
-
-public class FlyCreator(int seed) : ICreator<Fly>
-{
-    private readonly Random _random = new(seed);
-    
-    public Fly Create(Vector2 position, Map map)
-    {
-        var value = _random.NextSingle();
-        Fly fly = value switch
-        {
-            _ when value < 0.3 => new Mosquito(position),
-            _ => new PlainFly(position)
-        };
-
-        return fly;
     }
 }

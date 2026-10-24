@@ -40,15 +40,10 @@ public sealed class Stork : GameObject
 
     public Vector2 LandingPoint { get; private set; }
 
-    /// <summary>Точка, куда аист приземлится, если начнёт снижение прямо сейчас.</summary>
     public Vector2 LookAheadPoint => Position + Direction * _settings.LookAheadDistance;
 
     public bool RouteFinished => Distance >= RouteLength + Radius - Constants.Epsilon;
-
-    /// <summary>
-    /// Можно ли начинать снижение: аист ещё не охотился и успеет приземлиться до конца маршрута
-    /// (иначе он улетел бы за карту, не долетев до земли).
-    /// </summary>
+    
     public bool CanStartDescent =>
         Phase == StorkPhase.Searching && Distance + _settings.LookAheadDistance <= RouteLength;
 
@@ -61,11 +56,7 @@ public sealed class Stork : GameObject
         Phase = StorkPhase.Descending;
         _phaseTicks = 0;
     }
-
-    /// <summary>
-    /// Раз в тик: летит вперёд и обновляет высоту.
-    /// Возвращает true в тик касания земли
-    /// </summary>
+    
     public bool Advance()
     {
         Distance = MathF.Min(Distance + Speed, RouteLength);

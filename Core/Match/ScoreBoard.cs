@@ -22,7 +22,7 @@ public sealed class ScoreBoard : IEventHandler<FrogEatFlyEvent>
         var player = _players.FirstOrDefault(p => ReferenceEquals(p.Controllable, e.Frog));
         if (player is null) return;
 
-        _scores[player.PlayerId] += e.Fly.Points;
+        _scores[player.PlayerId] += e.Fly.ScorePoints;
     }
 
     public PlayerScore[] Snapshot() =>

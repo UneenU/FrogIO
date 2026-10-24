@@ -4,12 +4,12 @@ namespace Core.Objects.Abstraction;
 
 public interface IMovable
 {
-    Vector2 Velocity { get; }
     Vector2 Position { get; }
     float Mass { get; }
-
+    Vector2 Velocity { get; }
     Vector2 Drift { get; }
     sealed Vector2 TotalVelocity => Velocity + Drift;
+
     void MoveBy(Vector2 delta);
     void AddImpulse(Vector2 deltaV);
 

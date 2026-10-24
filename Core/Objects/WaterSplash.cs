@@ -11,16 +11,14 @@ public sealed class WaterSplash(
     float spreadSpeed = 0.3f)
     : GameObject(position, startRadius)
 {
-    public readonly float InitialStrength = maxStrength;
-    public float MaxRadius { get; } = maxRadius;
-    public float SpreadSpeed { get; } = spreadSpeed;
+    private float MaxRadius { get; } = maxRadius;
+    private float SpreadSpeed { get; } = spreadSpeed;
 
     public float Strength
     {
-        get => InitialStrength * (MaxRadius - Radius) / MaxRadius;
+        get => maxStrength * (MaxRadius - Radius) / MaxRadius;
     }
 
-    /// <summary>Раз в тик: старит всплеск и расширяет круг. Возвращает true, когда время жизни вышло.</summary>
     public bool Advance()
     {
         Radius += SpreadSpeed;

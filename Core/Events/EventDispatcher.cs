@@ -12,13 +12,10 @@ public interface IEventSink
 public sealed class EventDispatcher : IEventSink
 {
     private const int MaxEventsPerTick = 1000;
-
     private readonly Queue<GameEvent> _queue = new();
     private readonly Dictionary<Type, List<Action<GameEvent, SimulationContext>>> _handlers = new();
 
-    /// <summary>
-    /// Подписывает обработчик на события типа TEvent. Порядок вызова = порядок регистрации.
-    /// </summary>
+
     public void RegisterHandler<TEvent>(IEventHandler<TEvent> handler) where TEvent : GameEvent
     {
         if (!_handlers.TryGetValue(typeof(TEvent), out var list))
@@ -32,10 +29,7 @@ public sealed class EventDispatcher : IEventSink
 
     public void Publish(GameEvent e) => _queue.Enqueue(e);
 
-    /// <summary>
-    /// Обрабатывает очередь до опустения. События, опубликованные обработчиками,
-    /// встают в конец той же очереди и обрабатываются в этом же вызове.
-    /// </summary>
+
     public void DispatchAll(SimulationContext ctx)
     {
         var processed = 0;
@@ -44,9 +38,8 @@ public sealed class EventDispatcher : IEventSink
         {
             if (++processed > MaxEventsPerTick)
                 throw new InvalidOperationException(
-                    $"Больше {MaxEventsPerTick} событий за тик: похоже на зацикленную цепочку (последнее: {e.GetType().Name}).");
+                    $"Больше {MaxEventsPerTick} событий за тик: последнее: {e.GetType().Name}.");
 
-            // Нет обработчиков - нормально: событие может быть нужно только клиентам.
             if (!_handlers.TryGetValue(e.GetType(), out var handlers))
                 continue;
 

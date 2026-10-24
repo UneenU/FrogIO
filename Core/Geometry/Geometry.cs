@@ -14,7 +14,6 @@ public static class Geometry
 
         if (lengthSquared < Constants.Epsilon) return a;
 
-        // Проекция p на прямую ab в долях длины отрезка; зажимаем в [0, 1], чтобы не выйти за концы.
         var t = Math.Clamp(Vector2.Dot(p - a, ab) / lengthSquared, 0f, 1f);
         return a + ab * t;
     }

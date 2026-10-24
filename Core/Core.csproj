@@ -6,4 +6,76 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Compile Remove="Core\Commands\MosquitoAiController.cs" />
+      <Compile Remove="Core\Commands\FireflyAiController.cs" />
+      <Compile Remove="Core\Commands\FrogAiController.cs" />
+      <Compile Remove="Core\Commands\FlyAiController.cs" />
+      <Compile Remove="Core\Commands\IAiController.cs" />
+      <Compile Remove="Core\Systems\WaterSplashSystem.cs" />
+      <Compile Remove="Core\Systems\CollisionSystem.cs" />
+      <Compile Remove="Core\Systems\StarvingSystem.cs" />
+      <Compile Remove="Core\Systems\MovementSystem.cs" />
+      <Compile Remove="Core\Systems\LevelingSystem.cs" />
+      <Compile Remove="Core\Systems\FlySpawnSystem.cs" />
+      <Compile Remove="Core\Systems\RespawnSystem.cs" />
+      <Compile Remove="Core\Systems\LandingSystem.cs" />
+      <Compile Remove="Core\Systems\ControlSystem.cs" />
+      <Compile Remove="Core\Systems\AttackSystem.cs" />
+      <Compile Remove="Core\Systems\StorkSystem.cs" />
+      <Compile Remove="Core\Systems\FlowSystem.cs" />
+      <Compile Remove="Core\Systems\AiSystem.cs" />
+      <Compile Remove="Core\Systems\Abstraction\SimulationContext.cs" />
+      <Compile Remove="Core\Objects\WaterSplash.cs" />
+      <Compile Remove="Core\Objects\WaterLily.cs" />
+      <Compile Remove="Core\Objects\Abstraction\IControllable.cs" />
+      <Compile Remove="Core\Objects\Abstraction\ICollidable.cs" />
+      <Compile Remove="Core\Objects\Abstraction\GameObject.cs" />
+      <Compile Remove="Core\Objects\Storks\StorkSettings.cs" />
+      <Compile Remove="Core\Objects\Frogs\StickyFrog.cs" />
+      <Compile Remove="Core\Objects\Frogs\ShovelFrog.cs" />
+      <Compile Remove="Core\Objects\Frogs\CommonFrog.cs" />
+      <Compile Remove="Core\Objects\Frogs\Config.cs" />
+      <Compile Remove="Core\Objects\Frogs\Tongues\StickyTongue.cs" />
+      <Compile Remove="Core\Objects\Frogs\Tongues\ShovelTongue.cs" />
+      <Compile Remove="Core\Objects\Frogs\Tongues\PlainTongue.cs" />
+      <Compile Remove="Core\Objects\Frogs\Frog.cs" />
+      <Compile Remove="Core\Objects\Flies\FlySpawnSettings.cs" />
+      <Compile Remove="Core\Objects\Flies\PlainFly.cs" />
+      <Compile Remove="Core\Objects\Flies\Config.cs" />
+      <Compile Remove="Core\Events\EventDispatcher.cs" />
+      <Compile Remove="Core\Events\EventHandlers.cs" />
+      <Compile Remove="Core\Match\MatchStateMapper.cs" />
+      <Compile Remove="Core\Match\MatchSettings.cs" />
+      <Compile Remove="Core\Match\ScoreBoard.cs" />
+      <Compile Remove="Core\Match\MatchState.cs" />
+      <Compile Remove="Core\Match\TimeOfDay.cs" />
+      <Compile Remove="Core\Match\MatchCreator\IMatchCreator.cs" />
+      <Compile Remove="Core\Match\Match.cs" />
+      <Compile Remove="Core\obj\Debug\net10.0\.NETCoreApp,Version=v10.0.AssemblyAttributes.cs" />
+      <Compile Remove="Core\obj\Debug\net10.0\Core.GlobalUsings.g.cs" />
+      <Compile Remove="Core\obj\Debug\net10.0\Core.AssemblyInfo.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Core\obj\rider.project.model.nuget.info" />
+      <None Remove="Core\obj\Core.csproj.nuget.dgspec.json" />
+      <None Remove="Core\obj\Core.csproj.nuget.g.targets" />
+      <None Remove="Core\obj\rider.project.restore.info" />
+      <None Remove="Core\obj\Core.csproj.nuget.g.props" />
+      <None Remove="Core\obj\project.packagespec.json" />
+      <None Remove="Core\obj\project.nuget.cache" />
+      <None Remove="Core\obj\project.assets.json" />
+      <None Remove="Core\obj\Debug\net10.0\Core.GeneratedMSBuildEditorConfig.editorconfig" />
+      <None Remove="Core\obj\Debug\net10.0\Core.csproj.CoreCompileInputs.cache" />
+      <None Remove="Core\obj\Debug\net10.0\Core.csproj.FileListAbsolute.txt" />
+      <None Remove="Core\obj\Debug\net10.0\Core.AssemblyInfoInputs.cache" />
+      <None Remove="Core\obj\Debug\net10.0\Core.sourcelink.json" />
+      <None Remove="Core\obj\Debug\net10.0\Core.assets.cache" />
+      <None Remove="Core\obj\Debug\net10.0\Core.pdb" />
+      <None Remove="Core\obj\Debug\net10.0\Core.dll" />
+      <None Remove="Core\bin\Debug\net10.0\Core.deps.json" />
+      <None Remove="Core\bin\Debug\net10.0\Core.pdb" />
+    </ItemGroup>
+
 </Project>

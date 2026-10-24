@@ -1,6 +1,7 @@
 using System.Numerics;
 using Core.Events;
 using Core.MapSystem;
+using Core.Match;
 using Core.Objects;
 using Core.Objects.Frogs;
 using Core.Objects.Storks;
@@ -26,8 +27,9 @@ public sealed class StorkSystem(StorkSettings? settings = null, Random? random =
 
     public void Update(SimulationContext ctx)
     {
-        Spawn(ctx);
         AdvanceStorks(ctx);
+        if (ctx.TimeOfDay is TimeOfDay.Day)
+            Spawn(ctx);
     }
 
     public void Spawn(SimulationContext ctx)

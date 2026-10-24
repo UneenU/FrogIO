@@ -5,7 +5,6 @@ using Core.Systems.Abstraction;
 
 namespace Core.Systems;
 
-/// <summary>Расширяет всплески и убирает истёкшие. Порядок относительно других систем не важен.</summary>
 public sealed class WaterSplashSystem : ISimulationSystem
 {
     public void Update(SimulationContext ctx)

@@ -9,16 +9,18 @@ public record MatchState(
     float Time,
     float TimeLeft,
     bool IsEnded,
+    int WorldHour,
+    MapState MapState,
     FrogInfo[] Frogs,
     PadState[] Pads,
     FlyState[] Flies,
     SplashState[] Splashes,
-    PlayerScore[] Scores,
-    StorkState[] Storks);
+    StorkState[] Storks,
+    PlayerScore[] Scores);
 
 public record PadState(int Id, float X, float Y, float Radius);
 
-public record FlyState(int Id, string Type, float X, float Y, float Radius, float Angle);
+public record FlyState(int Id, string Type, string Effect, float X, float Y, float Radius, float Angle);
 
 public record FrogInfo(
     int Id,
@@ -27,10 +29,8 @@ public record FrogInfo(
     float Radius,
     float Angle,
     FrogState State,
+    string[] Effects,
     int? PadId,
-    float TongueX,
-    float TunguqY,
-    TongueState Tongue,
     TongueInfo TongueDetails);
 
 
@@ -39,3 +39,5 @@ public record SplashState(int Id, float X, float Y, float Radius);
 public record PlayerScore(int PlayerId, int Score);
 
 public record StorkState(int Id, float X, float Y, float Radius, float Height, float Angle, StorkPhase Phase);
+
+public record MapState(float Width, float Height, bool IsNarrowing, float NarrowDistance);

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Server.Hub;
 using StackExchange.Redis;
 
 namespace Server.Lobby.LobbyRepository;
@@ -211,23 +212,10 @@ public class RedisLobbyRepository(IConnectionMultiplexer redis) : ILobbyReposito
     }
 }
 
-public record LobbyMemberDto
-{
-    public int PlayerId { get; set; }
-    public string Nickname { get; set; } = "";
-    public bool IsReady { get; set; }
-    public string? ChosenFrog { get; set; }
-}
-
 public static class LobbyMemberMapper
 {
-    public static LobbyMemberDto ToDto(this LobbyMember member) => new()
-    {
-        PlayerId = member.UserId,
-        Nickname = member.Nickname,
-        IsReady = member.IsReady,
-        ChosenFrog = member.ChosenHero
-    };
+    public static LobbyMemberDto ToDto(this LobbyMember member) =>
+        new(member.UserId, member.Nickname, member.IsReady, member.ChosenHero);
 
     public static LobbyMember ToDomain(this LobbyMemberDto dto)
     {

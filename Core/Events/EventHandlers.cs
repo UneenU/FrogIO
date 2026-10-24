@@ -1,7 +1,9 @@
 using System.Numerics;
+using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using Core.Objects;
 using Core.Objects.Abstraction;
+using Core.Objects.Frogs;
 using Core.Systems;
 using Core.Systems.Abstraction;
 
@@ -29,7 +31,6 @@ public class FrogLandOnWaterLilyEventHandler : IEventHandler<FrogLandOnWaterLily
         return;
     }
 }
-
 
 public sealed class TwoObjectsCollidedEventHandler : IEventHandler<TwoObjectsCollidedEvent>
 {
@@ -78,6 +79,9 @@ public class FrogEatFlyEventHandler : IEventHandler<FrogEatFlyEvent>
 {
     public void Handle(FrogEatFlyEvent e, SimulationContext simulationContext)
     {
+        var effect = e.Fly.Effect;
+        var frog = e.Frog;
+        if (effect is not null) frog.ApplyEffect(effect);
         simulationContext.Map.Despawn(e.Fly);
     }
 }
@@ -93,17 +97,18 @@ public class StorkCaughtFrogEventHandler : IEventHandler<StorkCaughtFrogEvent>
     }
 }
 
-
 // TODO: переделать
 public class ObjectHitMapBorderEventHandler : IEventHandler<ObjectHitMapBorderEvent>
 {
     public void Handle(ObjectHitMapBorderEvent e, SimulationContext simulationContext)
     {
-        var obj = e.Obj;
-        if (obj is not IMovable movable) return;
+        if (e.Obj is Frog frog)
+        {
+            frog.Die();
+            simulationContext.Map.Despawn(frog);
+        }
+        if (e.Obj is WaterLily lily)
+            simulationContext.Map.Despawn(lily);
 
-        var p = Geometry.Geometry.ClosestPointOnSegment(e.P1, e.P2, obj.Position);
-        var dir = Vector2.Normalize(obj.Position - p);
-        movable.MoveBy(dir * (obj.Radius - Geometry.Geometry.DistanceToSegment(e.P1, e.P2, obj.Position)));
     }
 }

@@ -4,27 +4,23 @@ public sealed record FrogConfig
 {
     public string Name { get; init; } = "Common Frog";
     public float Radius { get; init; } = 4f;
+    public float Hp { get; init; } = 100f;
 
-    // --- Физика ---
     public float Mass { get; init; } = 300f;
 
-    /// <summary>Прирост радиуса на единицу массы</summary>
-    public float RadiusPerMass { get; init; } = 0.01f;
+    public float RadiusPerMass { get; init; } = 0.004f;
 
-    // --- Прыжки ---
     public float JumpSpeed { get; init; } = 1.5f;
     public float MaxJumpDistance { get; init; } = 100f;
     public float MaxWaterJumpDistance { get; init; } = 70f;
     public float JumpPeakHeight { get; init; } = 20f;
     public int JumpCooldownTicks { get; init; } = 60;
 
-    // --- Плавание ---
-    public float SwimSpeed { get; init; } = 0.8f;
+    public float SwimSpeed { get; init; } = 0.6f;
 
-    // --- Атака ---
     public int AttackCooldownTicks { get; init; } = 60;
-    public float TongueLength { get; init; } = 80f;
-    public float TongueSpeed { get; init; } = 3.5f;
+    public float TongueLength { get; init; } = 85f;
+    public float TongueSpeed { get; init; } = 4.5f;
 
     public static FrogConfig Default => new();
 }
@@ -42,5 +38,14 @@ public static class FrogPresets
         SwimSpeed = 0.6f,
         MaxJumpDistance = 60f,
         MaxWaterJumpDistance = 50f
+    };
+
+    public static FrogConfig Sticky => FrogConfig.Default with
+    {
+        Name = "Sticky",
+        TongueLength = 70,
+        Radius = 5,
+        Mass = 300f,
+        TongueSpeed = 3.3f
     };
 }

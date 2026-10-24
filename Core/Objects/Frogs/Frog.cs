@@ -1,4 +1,5 @@
 using System.Numerics;
+using Core.Commands;
 using Core.Objects.Abstraction;
 using Core.Objects.Frogs.Tongues;
 
@@ -23,22 +24,54 @@ public enum TongueState
 
 public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
 {
-    // -------- Поля --------
     public readonly Tongue Tongue;
     private int _jumpTotalTicks;
+    private Vector2? _targetToMove;
+    private WaterLily? _lilyToReach = null;
 
-    // -------- Характеристики вида --------
+    private readonly List<TimedEffect> _activeTimedEffects = new();
+    private readonly Dictionary<string, StatModifiers> _modifiersByEffect = new();
+    public IReadOnlyList<TimedEffect> ActiveTimedEffects => _activeTimedEffects;
+    public bool HasEffect(string id) => _activeTimedEffects.Any(e => e.Id == id);
+
+    private float GetModifier(Func<StatModifiers, float> selector)
+    {
+        var modifier = 1f;
+        foreach (var mods in _modifiersByEffect.Values)
+            modifier *= selector(mods);
+        return modifier;
+    }
+
+
     public string Name { get; }
     public float RadiusPerMass { get; }
-    public float JumpSpeed { get; }
-    public float MaxJumpDistance { get; }
-    public float MaxWaterJumpDistance { get; }
-    public float JumpPeakHeight { get; }
-    public int JumpCooldownTicks { get; }
-    public float SwimSpeed { get; }
 
-    // -------- Изменяемое состояние --------
-    public float Mass { get; protected set; }
+    public float JumpSpeed
+    {
+        get => field * GetModifier(m => m.JumpSpeedMul);
+        set => field = value;
+    }
+
+    public float MaxJumpDistance
+    {
+        get => field * GetModifier(m => m.MaxJumpDistanceMul);
+        set => field = value;
+    }
+
+    public float SwimSpeed
+    {
+        get => field * GetModifier(m => m.SwimSpeedMul);
+        set => field = value;
+    }
+
+    public float MaxWaterJumpDistance { get; }
+    public int JumpCooldownTicks { get; protected internal set; }
+    public float JumpPeakHeight { get; }
+
+    public float Hp { get; set; } // todo
+    public int Level { get; internal set; } = 1;
+    public int Xp { get; private set; } = 0;
+    public float Mass { get; protected internal set; }
 
     public FrogState State { get; private set; } = FrogState.SittingOnWaterLily;
     public WaterLily? Lily { get; private set; }
@@ -53,7 +86,6 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
     protected Frog(Vector2 position, FrogConfig config, WaterLily? lily = null, Tongue? tongue = null)
         : base(position, config.Radius)
     {
-        // Характеристики вида
         Name = config.Name;
         Radius = config.Radius;
         RadiusPerMass = config.RadiusPerMass;
@@ -64,6 +96,7 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
         JumpCooldownTicks = config.JumpCooldownTicks;
         SwimSpeed = config.SwimSpeed;
 
+        Hp = config.Hp;
         Mass = config.Mass;
         Lily = lily;
         Tongue = tongue ?? new PlainTongue(config.TongueLength, config.TongueSpeed);
@@ -96,13 +129,8 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
     {
         var dist = State switch
         {
-            FrogState.SittingOnWaterLily
-                => Math.Clamp(distance, 0f, MaxJumpDistance),
-
-            FrogState.Swimming when lilyAtTarget
-                                    && distance <= MaxWaterJumpDistance
-                => distance,
-
+            FrogState.SittingOnWaterLily => Math.Clamp(distance, 0f, MaxJumpDistance),
+            FrogState.Swimming when lilyAtTarget && distance <= MaxWaterJumpDistance => distance,
             _ => 0f
         };
 
@@ -135,18 +163,26 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
     public void Land(WaterLily? lily)
     {
         StopMotion();
+        AirTicksRemaining = 0;
+        Height = 0;
         Lily = lily;
         State = lily is null ? FrogState.Swimming : FrogState.SittingOnWaterLily;
     }
 
-    public void Swim(Vector2 direction)
+    public void Swim(Vector2 target)
     {
         if (State != FrogState.Swimming) return;
+        var direction = target - Position;
+        var dist = direction.Length() - Radius;
+        if (dist < Constants.Epsilon)
+        {
+            StopMotion();
+            return;
+        }
 
         Aim(direction);
-        Velocity = direction.LengthSquared() > Constants.Epsilon
-            ? Facing * SwimSpeed
-            : Vector2.Zero;
+        Velocity = Facing * Math.Min(SwimSpeed, dist);
+        if (dist < SwimSpeed) _targetToMove = null;
     }
 
     public bool TryAttack(Vector2 direction, float distance, int tick)
@@ -174,6 +210,41 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
         Radius += fly.Mass * 0.01f;
     }
 
+    public bool ApplyEffect(Effect effect)
+    {
+        if (!IsAlive) return false;
+        if (HasEffect(effect.Id)) return false;
+        if (!effect.Apply(this)) return false;
+
+        if (effect is TimedEffect timedEffect)
+            _activeTimedEffects.Add(timedEffect);
+        return true;
+    }
+
+    public void RemoveEffect(TimedEffect effect)
+    {
+        if (_activeTimedEffects.Remove(effect))
+        {
+            effect.Remove(this);
+        }
+    }
+
+    internal void SetModifiers(string effectId, StatModifiers mods)
+    {
+        _modifiersByEffect[effectId] = mods;
+    }
+
+    internal void ClearModifiers(string effectId)
+    {
+        _modifiersByEffect.Remove(effectId);
+    }
+
+    public void AddXp(float amount)
+    {
+        if (amount <= 0f || !IsAlive) return;
+        Xp += (int)(amount * GetModifier(m => m.XpGainMul));
+    }
+
     public void Die()
     {
         StopMotion();
@@ -191,7 +262,6 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
         State = FrogState.SittingOnWaterLily;
         NextJumpAvailableTick = 0;
         NextAttackAvailableTick = 0;
-        
     }
 
     public bool CollidesWith(ICollidable other)
@@ -203,10 +273,44 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
         return true;
     }
 
-    public void StopMotion()
+    private void StopMotion()
     {
         Velocity = Vector2.Zero;
-        AirTicksRemaining = 0;
-        Height = 0;
+        _targetToMove = null;
+        _lilyToReach = null;
+    }
+
+    public void SetTargetToMove(Vector2 targetToMove)
+    {
+        _lilyToReach = null;
+        _targetToMove = targetToMove;
+    }
+
+    public void SetTargetToMove(GameObject target)
+    {
+        _targetToMove = null;
+        if (target is WaterLily lily)
+            _lilyToReach = lily;
+    }
+
+    public void MoveToTarget(int tick)
+    {
+        if (_lilyToReach is not null)
+        {
+            var dir = _lilyToReach.Position - Position;
+            var jumped = TryStartJump(dir, dir.Length(), tick, true);
+            if (!jumped) Swim(_lilyToReach.Position);
+        }
+        else if (_targetToMove is not null)
+        {
+            var dir = _targetToMove.Value - Position;
+            if (State.HasFlag(FrogState.SittingOnWaterLily) &&
+                TryStartJump(dir, dir.Length(), tick, false)) return;
+            Swim(_targetToMove.Value);
+        }
+        else
+        {
+            StopMotion();
+        }
     }
 }

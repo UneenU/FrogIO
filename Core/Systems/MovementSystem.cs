@@ -7,7 +7,7 @@ using Core.Systems.Abstraction;
 
 namespace Core.Systems;
 
-public sealed class MovementSystem() : ISimulationSystem
+public sealed class MovementSystem(FlowSystem flowSystem) : ISimulationSystem
 {
     private readonly Dictionary<GameObject, Vector2> _applied = new();
 
@@ -29,24 +29,6 @@ public sealed class MovementSystem() : ISimulationSystem
         {
             if (obj is IMovable movable && PlatformOf(obj) is null)
                 _applied[obj] = Apply(obj, movable, movable.TotalVelocity, ctx);
-            
-            // соударения с границами карты
-            Vector2[] mapCorners =
-            [
-                new(0, 0),
-                new(ctx.Map.Width, 0),
-                new(ctx.Map.Width, ctx.Map.Height),
-                new(0, ctx.Map.Height)
-            ];
-            var prev = mapCorners[3];
-            for (int j = 0; j < 4; j++)
-            {
-                if (Geometry.Geometry.DistanceToSegment(prev, mapCorners[j], obj.Position) < obj.Radius)
-                {
-                    ctx.Events.Publish(new ObjectHitMapBorderEvent(obj, prev, mapCorners[j]));
-                }
-                prev = mapCorners[j];
-            }
         }
 
         // Фаза 2: пассажиры едут вместе с платформой. Собственная скорость тоже учитывается.
@@ -62,6 +44,7 @@ public sealed class MovementSystem() : ISimulationSystem
 
     private Vector2 Apply(GameObject obj, IMovable movable, Vector2 delta, SimulationContext ctx)
     {
+        delta += flowSystem.GetForce(movable, ctx);
         if (delta == Vector2.Zero) return delta;
 
         movable.MoveBy(delta);
