@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Server.ConnectionManager;
 
-public class ConnectionManager : IConnectionManager
+public class ConnectionManager
 {
     private static ConcurrentDictionary<string, int> _connectionUserMap = new();
     private static ConcurrentDictionary<int, string> _userConnectionMap = new();

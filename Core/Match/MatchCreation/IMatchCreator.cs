@@ -2,5 +2,5 @@ namespace Core.Match.MatchCreator;
 
 public interface IMatchCreator
 {
-    public Match CreateMatch(PlayerInfo[] playersInfo);
+    public Match CreateMatch(PlayerInit[] playersInfo);
 }

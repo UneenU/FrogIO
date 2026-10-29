@@ -6,11 +6,13 @@ public class LobbyService : ILobbyService
 {
     private readonly ILogger<LobbyService> _logger;
     private readonly ILobbyRepository _lobbyRepository;
+    private readonly IUserRepository _userRepository;
 
-    public LobbyService(ILogger<LobbyService> logger, ILobbyRepository lobbyRepository)
+    public LobbyService(ILogger<LobbyService> logger, ILobbyRepository lobbyRepository, IUserRepository userRepository)
     {
         _logger = logger;
         _lobbyRepository = lobbyRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<string> CreateLobby(string lobbyName, int maxPlayers)
@@ -27,10 +29,16 @@ public class LobbyService : ILobbyService
         if (userLobby is not null ||
             lobby is null ||
             lobby.Members.Any(p => p.UserId == userId) ||
-            lobby.IsFull) return false;
+            lobby.IsFull)
+        {
+            _logger.LogInformation($"user lobby: {userLobby}, lobby: {lobbyId}, lobby is full: {lobby?.IsFull}");
+            return false;
+        }
 
         _logger.LogInformation($"user {userId} added to lobby {lobbyId}");
-        var lobbyMember = new LobbyMember(userId, userId.ToString());
+
+        var user = await _userRepository.GetUserShortInfoAsync(userId);
+        var lobbyMember = new LobbyMember(userId, user!.Nickname);
         await _lobbyRepository.SetLobbyMemberAsync(lobbyId, lobbyMember);
         return true;
     }

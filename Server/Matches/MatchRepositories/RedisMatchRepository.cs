@@ -7,6 +7,7 @@ public class RedisMatchRepository(IConnectionMultiplexer redis) : IMatchReposito
     private readonly IDatabase _database = redis.GetDatabase();
 
     private static string UserMatchKey(int userId) => $"user-match:{userId}";
+    private static string MatchKey(string matchId) => $"match:{matchId}";
 
     public async ValueTask<string?> FindUserMatchAsync(int userId)
     {
@@ -17,5 +18,15 @@ public class RedisMatchRepository(IConnectionMultiplexer redis) : IMatchReposito
     public async ValueTask SetUserMatchAsync(int userId, string matchId)
     {
         await _database.StringSetAsync(UserMatchKey(userId), matchId);
+        await _database.SetAddAsync(MatchKey(matchId), userId);
+    }
+
+    public async Task RemoveMatchAsync(string matchId)
+    {
+        var usersIds = await _database.SetMembersAsync(MatchKey(matchId));
+        foreach (var userId in usersIds)
+        {
+            await _database.KeyDeleteAsync(UserMatchKey(int.Parse(userId)));
+        }
     }
 }

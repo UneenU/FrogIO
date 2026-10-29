@@ -5,6 +5,7 @@ using Core;
 using Core.Commands;
 using Core.Events;
 using Core.Match;
+using Server.Data;
 using Server.Match.MatchService;
 
 namespace Server.Match;
@@ -17,15 +18,15 @@ public class MatchRuntime
 
     private readonly Dictionary<int, Channel<Command>> _playersCommands = new();
     private readonly Channel<ContextCommand> _contextCommands = Channel.CreateUnbounded<ContextCommand>();
-    private readonly Core.Match.Match _match;
     private readonly ILogger _logger;
     private readonly IServiceScopeFactory _scopeFactory;
 
+    public readonly Core.Match.Match Match;
     public MatchRuntime(Core.Match.Match match,
         ILogger logger,
         IServiceScopeFactory scopeFactory)
     {
-        _match = match;
+        Match = match;
         _logger = logger;
         _scopeFactory = scopeFactory;
         foreach (var player in match.Players)
@@ -39,12 +40,12 @@ public class MatchRuntime
         }
     }
 
-    public Player GetPlayer(int playerId) => _match.Players.First(p => p.PlayerId == playerId);
+    public Player GetPlayer(int playerId) => Match.Players.First(p => p.PlayerId == playerId);
 
     public void Enqueue(int playerId, Command command)
     {
         if (!_playersCommands[playerId].Writer.TryWrite(command))
-            _logger.LogWarning("Очередь команд матча {Id} переполнена", _match.Id);
+            _logger.LogWarning("Очередь команд матча {Id} переполнена", Match.Id);
     }
 
     public void EnqueueContextCommand(int playerId, int choiceNumber)
@@ -92,7 +93,7 @@ public class MatchRuntime
 
                 var commands = DrainCommands().ToArray();
                 var contextCommands = DrainContextCommands().ToArray();
-                var (state, clientEvents) = _match.Step(commands, contextCommands);
+                var (state, clientEvents) = Match.Step(commands, contextCommands);
 
                 tick++;
                 stopwatch.Stop();
@@ -100,20 +101,21 @@ public class MatchRuntime
 
                 using var scope = _scopeFactory.CreateScope();
                 var matchService = scope.ServiceProvider.GetRequiredService<IMatchService>();
-                await matchService.HandleMatchStateAsync(_match, state, clientEvents);
+                await matchService.HandleMatchStateAsync(Match, state, clientEvents);
             }
         }
         catch (OperationCanceledException)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var matchService = scope.ServiceProvider.GetRequiredService<IMatchService>();
-            await matchService.OnMatchEndingAsync(_match);
+            return;
+            // using var scope = _scopeFactory.CreateScope();
+            // var matchService = scope.ServiceProvider.GetRequiredService<IMatchService>();
+            // await matchService.OnMatchEndingAsync(Match, MatchStatus.Cancelled);
         }
         catch (Exception ex)
         {
             using var scope = _scopeFactory.CreateScope();
             var matchService = scope.ServiceProvider.GetRequiredService<IMatchService>();
-            await matchService.OnMatchFallAsync(_match, ex);
+            await matchService.OnMatchFallAsync(Match, ex);
         }
     }
 

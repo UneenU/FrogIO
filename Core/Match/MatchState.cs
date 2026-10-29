@@ -16,7 +16,7 @@ public record MatchState(
     FlyState[] Flies,
     SplashState[] Splashes,
     StorkState[] Storks,
-    PlayerScore[] Scores);
+    Dictionary<int, int> Scores);
 
 public record PadState(int Id, float X, float Y, float Radius);
 
@@ -35,8 +35,6 @@ public record FrogInfo(
 
 
 public record SplashState(int Id, float X, float Y, float Radius);
-
-public record PlayerScore(int PlayerId, int Score);
 
 public record StorkState(int Id, float X, float Y, float Radius, float Height, float Angle, StorkPhase Phase);
 

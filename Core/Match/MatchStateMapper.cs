@@ -8,7 +8,7 @@ namespace Core.Match;
 public static class MatchStateMapper
 {
     public static MatchState Create(MapSystem.Map map, int tick, float time, float timeLeft, int worldHours,
-        PlayerScore[] scores, MapState mapState) =>
+        Dictionary<int, int> scores, MapState mapState) =>
         new(tick,
             time,
             timeLeft,

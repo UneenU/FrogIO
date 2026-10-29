@@ -25,6 +25,6 @@ public sealed class ScoreBoard : IEventHandler<FrogEatFlyEvent>
         _scores[player.PlayerId] += e.Fly.ScorePoints;
     }
 
-    public PlayerScore[] Snapshot() =>
-        _players.Select(p => new PlayerScore(p.PlayerId, _scores[p.PlayerId])).ToArray();
+    public Dictionary<int, int> Snapshot() =>
+        _players.ToDictionary(p => p.PlayerId, p => _scores[p.PlayerId]);
 }

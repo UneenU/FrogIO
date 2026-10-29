@@ -23,7 +23,7 @@ public class MatchCreator : IMatchCreator
     }
 
 
-    public Match CreateMatch(PlayerInfo[] playersInfo)
+    public Match CreateMatch(PlayerInit[] playersInfo)
     {
         var map = _mapCreator.Create();
         Player[] players = new Player[playersInfo.Length];
@@ -96,4 +96,4 @@ public class MatchCreator : IMatchCreator
     }
 }
 
-public record PlayerInfo(int PlayerId, string ChosenFrog);
+public record PlayerInit(int PlayerId, string ChosenFrog);

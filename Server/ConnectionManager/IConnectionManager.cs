@@ -5,8 +5,8 @@ namespace Server.ConnectionManager;
 public interface IConnectionManager
 {
     int IdentifyUserByConnection(HubCallerContext context);
-    void Register(int playerId, string connectionId);
-    void Unregister(int playerId);
-    string? GetConnectionId(int playerId);
-    IReadOnlyList<string> GetConnectionsFor(int playerId);
+    Task Register(int playerId, string connectionId);
+    Task Unregister(int playerId);
+    Task<string?> GetConnectionId(int playerId);
+    
 }

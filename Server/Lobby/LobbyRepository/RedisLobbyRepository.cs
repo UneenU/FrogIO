@@ -219,7 +219,7 @@ public static class LobbyMemberMapper
 
     public static LobbyMember ToDomain(this LobbyMemberDto dto)
     {
-        var lobbyMember = new LobbyMember(dto.PlayerId, dto.Nickname);
+        var lobbyMember = new LobbyMember(dto.UserId, dto.Nickname);
         lobbyMember.SetReady(dto.IsReady);
         lobbyMember.SetChosenHero(dto.ChosenFrog);
         return lobbyMember;

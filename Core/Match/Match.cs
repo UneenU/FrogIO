@@ -25,6 +25,7 @@ public class Match
     public string Id { get; }
     public float WorldWidth => _map.Width;
     public float WorldHeight => _map.Height;
+    public float MatchDurationSeconds => _settings.DurationSeconds;
 
     public TimeOfDay TimeOfDay = TimeOfDay.Day;
     private readonly LevelingSystem _levelingSystem;
@@ -79,7 +80,6 @@ public class Match
         if (Tick % _settings.TickRate == 0)
         {
             _time.AddMinutes(_settings.WorldMinutesInOneSecond);
-            Console.WriteLine($"Time in world : {_time.Hours}.{_time.Minutes}");
             TimeOfDay = _time >= _settings.DayStart && _time <= _settings.DayEnd ? TimeOfDay.Day : TimeOfDay.Night;
         }
 
@@ -106,7 +106,7 @@ public class Match
 
 public record MatchResult
 {
-    public PlayerScore[] Scores { get; init; }
+    public Dictionary<int, int> Scores { get; init; }
 }
 
 public record ContextCommand(int PlayerId, int ChoiceNumber);
