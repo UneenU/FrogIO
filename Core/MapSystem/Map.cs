@@ -9,18 +9,22 @@ public class Map
     private readonly List<GameObject> _pendingSpawns;
     private readonly List<GameObject> _pendingDespawns = [];
     private readonly List<GameObject> _gameObjects = [];
-    // Кэш результатов Query<T>: тип -> IReadOnlyList<T>.
     private readonly Dictionary<Type, object> _queryCache = [];
 
     public float Width { get; }
     public float Height { get; }
+
+    public Platform Platform { get; }
+
     public IReadOnlyList<GameObject> GameObjects => _gameObjects.AsReadOnly();
-    
-    
-    public Map(float width, float height, List<GameObject> gameObjects)
+
+
+    public Map(float width, float height, Platform platform, List<GameObject> gameObjects)
     {
+        ArgumentNullException.ThrowIfNull(platform);
         Width = width;
         Height = height;
+        Platform = platform;
         _pendingSpawns = [.. gameObjects];
         ApplyPendingChanges();
     }
@@ -78,7 +82,8 @@ public class Map
     private static bool Contains(GameObject obj, Vector2 point, float radius) =>
         Vector2.Distance(point, obj.Position) <= radius + obj.Radius;
 
-    public float GetDensityAtPosition(Vector2 point) => 1.5f;
+    /// <summary>Вязкость среды в точке. Платформа одна и однородна, поэтому точка пока не влияет на результат.</summary>
+    public float GetDensityAtPosition(Vector2 point) => Platform.Density;
 
     public void ApplyPendingChanges()
     {

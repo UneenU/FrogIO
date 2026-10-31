@@ -1,4 +1,5 @@
 using System.Numerics;
+using Core.Geometry;
 using Core.Objects;
 using Core.Objects.Abstraction;
 using Core.Objects.Frogs;
@@ -19,6 +20,9 @@ public class MapConfig(float width, float height, IReadOnlyList<ObjectSpawn> spa
     public int MaxAttemptsPerObject { get; init; } = 100;
 
     public IReadOnlyList<ObjectSpawn> Spawns { get; init; } = spawns;
+
+    /// <summary>Платформа карты. По умолчанию занимает весь мир.</summary>
+    public PlatformConfig Platform { get; init; } = PlatformConfig.Default;
 }
 
 public class MapCreator
@@ -45,35 +49,35 @@ public class MapCreator
     {
         var random = new Random(_seed);
         var objects = new List<GameObject>();
-        Map map = new Map(_config.Width, _config.Height, objects);
+        var platform = _config.Platform.Create(_config.Width, _config.Height);
 
         foreach (var spawn in _config.Spawns)
         {
             for (var i = 0; i < spawn.Count; i++)
             {
-                var position = FindFreePosition(1, objects, random)
+                var position = FindFreePosition(1, platform.Bounds, objects, random)
                                ?? throw new InvalidOperationException(
                                    $"Не удалось разместить {spawn.Type.Name} #{i + 1} из {spawn.Count}: " +
                                    $"за {_config.MaxAttemptsPerObject} попыток не найдено свободное место.");
 
-                objects.Add(CreateInstance(map, spawn.Type, position));
+                objects.Add(CreateInstance(platform, spawn.Type, position));
             }
         }
 
-        return new Map(_config.Width, _config.Height, objects);
+        return new Map(_config.Width, _config.Height, platform, objects);
     }
 
-    private Vector2? FindFreePosition(float radius, List<GameObject> placed, Random random)
+    private Vector2? FindFreePosition(float radius, Rect area, List<GameObject> placed, Random random)
     {
-        var freeWidth = _config.Width - 2 * radius;
-        var freeHeight = _config.Height - 2 * radius;
+        var freeWidth = area.Width - 2 * radius;
+        var freeHeight = area.Height - 2 * radius;
 
         for (var attempt = 0; attempt < _config.MaxAttemptsPerObject; attempt++)
         {
-            // Центр круга выбирается так, чтобы весь круг лежал внутри карты.
+            // Центр круга выбирается так, чтобы весь круг лежал внутри области (платформы).
             var candidate = new Vector2(
-                radius + random.NextSingle() * freeWidth,
-                radius + random.NextSingle() * freeHeight);
+                area.Left + radius + random.NextSingle() * freeWidth,
+                area.Top + radius + random.NextSingle() * freeHeight);
 
             if (!IntersectsAny(candidate, radius, placed))
                 return candidate;
@@ -98,9 +102,9 @@ public class MapCreator
         return false;
     }
 
-    private GameObject CreateInstance(Map map, Type type, Vector2 position)
+    private GameObject CreateInstance(Platform platform, Type type, Vector2 position)
     {
-        return _creators[type].Create(position, map);
+        return _creators[type].Create(position, platform);
     }
 
     private void Validate(MapConfig config)
@@ -110,6 +114,9 @@ public class MapCreator
 
         if (config.MaxAttemptsPerObject <= 0)
             throw new ArgumentException("MaxAttemptsPerObject должен быть положительным.", nameof(config));
+
+        ArgumentNullException.ThrowIfNull(config.Platform);
+        config.Platform.Create(config.Width, config.Height);
 
         foreach (var spawn in config.Spawns)
         {
@@ -124,7 +131,7 @@ public class MapCreator
 
 public interface ICreator<out T>
 { 
-    public T Create(Vector2 position, Map map);
+    public T Create(Vector2 position, Platform platform);
 }
 
 public class LilyCreator(int seed) : ICreator<WaterLily>
@@ -133,7 +140,7 @@ public class LilyCreator(int seed) : ICreator<WaterLily>
     private const float LilyRadius = 15;
     private const float Dif = 6;
     
-    public WaterLily Create(Vector2 position, Map map)
+    public WaterLily Create(Vector2 position, Platform platform)
     {
         return new WaterLily(position, LilyRadius + Dif * _random.NextSingle());
     }

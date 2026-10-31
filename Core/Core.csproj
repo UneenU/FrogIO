@@ -55,6 +55,7 @@
       <Compile Remove="Core\obj\Debug\net10.0\.NETCoreApp,Version=v10.0.AssemblyAttributes.cs" />
       <Compile Remove="Core\obj\Debug\net10.0\Core.GlobalUsings.g.cs" />
       <Compile Remove="Core\obj\Debug\net10.0\Core.AssemblyInfo.cs" />
+      <Compile Remove="MapSystem\mapNarrowingSystem.cs" />
     </ItemGroup>
 
     <ItemGroup>

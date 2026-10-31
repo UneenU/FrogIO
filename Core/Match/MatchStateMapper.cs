@@ -1,4 +1,6 @@
 using System.Numerics;
+using Core.Geometry;
+using Core.MapSystem;
 using Core.Objects;
 using Core.Objects.Frogs;
 using Core.Objects.Storks;
@@ -8,13 +10,13 @@ namespace Core.Match;
 public static class MatchStateMapper
 {
     public static MatchState Create(MapSystem.Map map, int tick, float time, float timeLeft, int worldHours,
-        Dictionary<int, int> scores, MapState mapState) =>
+        Dictionary<int, int> scores) =>
         new(tick,
             time,
             timeLeft,
             timeLeft <= 0,
             worldHours,
-            mapState,
+            ToPlatformState(map.Platform),
             map.Query<Frog>().Select(ToFrogState).ToArray(),
             map.Query<WaterLily>().Select(ToPadState).ToArray(),
             map.Query<Fly>().Select(ToFlyState).ToArray(),
@@ -22,12 +24,20 @@ public static class MatchStateMapper
             map.Query<Stork>().Select(ToStorkState).ToArray(),
             scores);
 
+    private static PlatformState ToPlatformState(Platform platform)
+    {
+        var b = platform.Bounds;
+        var shrink = platform.Shrink.State;
+        return new PlatformState(b.X, b.Y, b.Width, b.Height, shrink.Phase, shrink.TicksLeft,
+            shrink.Target is { } t ? new RectState(t.X, t.Y, t.Width, t.Height) : null);
+    }
+
     private static PadState ToPadState(WaterLily lily) =>
-        new(lily.Id, lily.Position.X, lily.Position.Y, lily.Radius);
+        new(lily.Id, lily.Position.X, lily.Position.Y, lily.Height, lily.Radius);
 
     private static FlyState ToFlyState(Fly fly) =>
-        new(fly.Id, fly.Name, fly.Effect?.DisplayName ?? "none", fly.Position.X, fly.Position.Y, fly.Radius,
-            AngleOf(fly.Facing));
+        new(fly.Id, fly.Name, fly.Effect?.DisplayName ?? "none", fly.Position.X, fly.Position.Y, fly.Height,
+            fly.Radius, AngleOf(fly.Facing));
 
     private static FrogInfo ToFrogState(Frog frog)
     {
@@ -36,6 +46,7 @@ public static class MatchStateMapper
             frog.Id,
             frog.Position.X,
             frog.Position.Y,
+            frog.Height,
             frog.Radius,
             AngleOf(frog.Facing),
             frog.State,

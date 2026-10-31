@@ -63,10 +63,11 @@ public class MatchCreator : IMatchCreator
 
         var control = new ControlSystem();
         var levelSystem = new LevelingSystem();
-
+        
         // Собыийная модель
         var events = new EventDispatcher();
-        events.RegisterHandler(new ObjectHitMapBorderEventHandler());
+        var sinkingSystem = new SinkingSystem();
+        events.RegisterHandler(sinkingSystem);
         events.RegisterHandler(new FrogFallInWaterEventHandler());
         events.RegisterHandler(new FrogLandOnWaterLilyEventHandler());
         events.RegisterHandler(new FrogEatFlyEventHandler());
@@ -77,14 +78,15 @@ public class MatchCreator : IMatchCreator
         // Системы симуляции
         ISimulationSystem[] systems =
         [
+            new PlatformShrinkSystem(),
             new FlySpawnSystem(aiSystem, _factory, random: new Random(_random.Next())),
             new RespawnSystem(),
             new CollisionSystem(),
-            // new FlowSystem(),
             new LandingSystem(),
             new AttackSystem(),
             new WaterSplashSystem(),
             new StorkSystem(),
+            sinkingSystem,
             new MovementSystem(new FlowSystem()),
             new EffectSystem()
         ];

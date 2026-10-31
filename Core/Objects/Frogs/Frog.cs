@@ -22,7 +22,7 @@ public enum TongueState
     Returning = 2,
 }
 
-public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
+public abstract class Frog : GameObject, IMovable, ICollidable, IControllable, IFloating
 {
     public readonly Tongue Tongue;
     private int _jumpTotalTicks;
@@ -111,6 +111,7 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
     public bool IsInWater => State.HasFlag(FrogState.Swimming);
     public bool IsAvailable => (State & (FrogState.Attacking | FrogState.Jumping | FrogState.Dead)) == 0;
     public bool IsAttacking => State.HasFlag(FrogState.Attacking);
+    public bool IsAfloat => IsAlive && !IsInAir;
 
     // -------- Публичный API --------
     /// <summary>Применяет смещение, посчитанное системой движения. Больше ничего не делает.</summary>
@@ -262,6 +263,7 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable
         State = FrogState.SittingOnWaterLily;
         NextJumpAvailableTick = 0;
         NextAttackAvailableTick = 0;
+        Height = 0;
     }
 
     public bool CollidesWith(ICollidable other)

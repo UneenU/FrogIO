@@ -96,19 +96,3 @@ public class StorkCaughtFrogEventHandler : IEventHandler<StorkCaughtFrogEvent>
         simulationContext.Map.Despawn(e.Frog);
     }
 }
-
-// TODO: переделать
-public class ObjectHitMapBorderEventHandler : IEventHandler<ObjectHitMapBorderEvent>
-{
-    public void Handle(ObjectHitMapBorderEvent e, SimulationContext simulationContext)
-    {
-        if (e.Obj is Frog frog)
-        {
-            frog.Die();
-            simulationContext.Map.Despawn(frog);
-        }
-        if (e.Obj is WaterLily lily)
-            simulationContext.Map.Despawn(lily);
-
-    }
-}

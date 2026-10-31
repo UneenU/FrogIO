@@ -13,7 +13,7 @@ public sealed record FrogConfig
     public float JumpSpeed { get; init; } = 1.5f;
     public float MaxJumpDistance { get; init; } = 100f;
     public float MaxWaterJumpDistance { get; init; } = 70f;
-    public float JumpPeakHeight { get; init; } = 20f;
+    public float JumpPeakHeight { get; init; } = 15f;
     public int JumpCooldownTicks { get; init; } = 60;
 
     public float SwimSpeed { get; init; } = 0.6f;

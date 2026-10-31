@@ -12,7 +12,6 @@ public class Match
     private readonly Map _map;
     private readonly ScoreBoard _scoreBoard;
     private readonly ControlSystem _controlSystem;
-    private readonly MapNarrowingSystem _mapNarrowingSystem;
     private readonly AiInputSystem _aiSystem;
     private readonly IReadOnlyList<ISimulationSystem> _systems;
     private readonly EventDispatcher _events;
@@ -50,7 +49,6 @@ public class Match
         _aiSystem = aiSystem;
         _systems = systems;
         _events = events;
-        _mapNarrowingSystem = new MapNarrowingSystem(_map, 5, 17 * 60, 3 * 60);
         _settings = settings ?? MatchSettings.Default;
         _levelingSystem = levelingSystem;
         _scoreBoard = new ScoreBoard(players);
@@ -66,7 +64,6 @@ public class Match
         var commands = _aiSystem.GetAiCommands(ctx);
         commands.AddRange(usersCommands);
 
-        _mapNarrowingSystem.Update(ctx);
         _controlSystem.Handle(commands, ctx);
         _levelingSystem.Handle(usersContextCommands, ctx);
 
@@ -98,8 +95,7 @@ public class Match
     {
         var time = Tick * _settings.TickDuration;
         var timeLeft = MathF.Max(0f, _settings.DurationSeconds - time);
-        var state = MatchStateMapper.Create(_map, Tick, time, timeLeft, _time.Hours, _scoreBoard.Snapshot(),
-            _mapNarrowingSystem.CurrentMapState());
+        var state = MatchStateMapper.Create(_map, Tick, time, timeLeft, _time.Hours, _scoreBoard.Snapshot());
         return state;
     }
 }

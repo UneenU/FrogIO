@@ -35,7 +35,7 @@ public class FrogAiController(Frog controllable) : IAiController<Frog>
     private Vector2 ChooseTarget(MapSystem.Map map, Frog frog)
     {
         var lilies = map.Query<WaterLily>()
-            .Where(l => l != frog.Lily)
+            .Where(l => l != frog.Lily && map.Platform.Contains(l.Position)) // тонущие кувшинки не цель
             .ToList();
 
         if (lilies.Count == 0)

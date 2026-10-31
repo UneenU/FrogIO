@@ -2,7 +2,7 @@ namespace Core.Objects.Frogs;
 
 public sealed record FlyConfig
 {
-    public const float FlyHeight = 10f;
+    public const float FlyHeight = 20f;
     
     public string Name { get; init; } = "plain fly";
     public float Radius { get; init; } = 3.5f;

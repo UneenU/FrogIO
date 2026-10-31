@@ -1,3 +1,4 @@
+using Core.MapSystem;
 using Core.Objects.Frogs;
 using Core.Objects.Frogs.Tongues;
 using Core.Objects.Storks;
@@ -10,7 +11,7 @@ public record MatchState(
     float TimeLeft,
     bool IsEnded,
     int WorldHour,
-    MapState MapState,
+    PlatformState Platform,
     FrogInfo[] Frogs,
     PadState[] Pads,
     FlyState[] Flies,
@@ -18,14 +19,15 @@ public record MatchState(
     StorkState[] Storks,
     Dictionary<int, int> Scores);
 
-public record PadState(int Id, float X, float Y, float Radius);
+public record PadState(int Id, float X, float Y, float Height, float Radius);
 
-public record FlyState(int Id, string Type, string Effect, float X, float Y, float Radius, float Angle);
+public record FlyState(int Id, string Type, string Effect, float X, float Y, float Height, float Radius, float Angle);
 
 public record FrogInfo(
     int Id,
     float X,
     float Y,
+    float Height,
     float Radius,
     float Angle,
     FrogState State,
@@ -38,4 +40,15 @@ public record SplashState(int Id, float X, float Y, float Radius);
 
 public record StorkState(int Id, float X, float Y, float Radius, float Height, float Angle, StorkPhase Phase);
 
-public record MapState(float Width, float Height, bool IsNarrowing, float NarrowDistance);
+public record RectState(float X, float Y, float Width, float Height);
+
+/// <param name="ShrinkTicksLeft">Тиков до следующей смены фазы сужения.</param>
+/// <param name="NextBounds">Границы после ближайшего сужения</param>
+public record PlatformState(
+    float X,
+    float Y,
+    float Width,
+    float Height,
+    ShrinkPhase ShrinkPhase,
+    int ShrinkTicksLeft,
+    RectState? NextBounds);

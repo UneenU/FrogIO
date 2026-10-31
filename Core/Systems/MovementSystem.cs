@@ -24,22 +24,23 @@ public sealed class MovementSystem(FlowSystem flowSystem) : ISimulationSystem
             fly.MoveBy(delta);
         }
 
-        // Фаза 1: все, кого никто не везёт, двигаются сами (в том числе платформы).
+        // Фаза 1: все, кого никто не везёт, двигаются сами (в том числе носители: кувшинки).
         foreach (var obj in objects)
         {
-            if (obj is IMovable movable && PlatformOf(obj) is null)
+            if (obj is IMovable movable && CarrierOf(obj) is null)
                 _applied[obj] = Apply(obj, movable, movable.TotalVelocity, ctx);
         }
 
-        // Фаза 2: пассажиры едут вместе с платформой. Собственная скорость тоже учитывается.
+        // Фаза 2: пассажиры едут вместе с носителем. Собственная скорость тоже учитывается.
         foreach (var obj in objects)
         {
-            if (obj is IMovable movable && PlatformOf(obj) is { } platform)
-                Apply(obj, movable, movable.TotalVelocity + _applied.GetValueOrDefault(platform), ctx);
+            if (obj is IMovable movable && CarrierOf(obj) is { } carrier)
+                Apply(obj, movable, movable.TotalVelocity + _applied.GetValueOrDefault(carrier), ctx);
         }
     }
 
-    private static GameObject? PlatformOf(GameObject obj) =>
+    /// <summary>Объект, который везёт <paramref name="obj"/> на себе (кувшинка под лягушкой), иначе <c>null</c>.</summary>
+    private static GameObject? CarrierOf(GameObject obj) =>
         obj is Frog { Lily: GameObject lily } ? lily : null;
 
     private Vector2 Apply(GameObject obj, IMovable movable, Vector2 delta, SimulationContext ctx)
