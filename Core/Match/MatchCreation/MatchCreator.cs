@@ -48,9 +48,9 @@ public class MatchCreator : IMatchCreator
             var lily = lilies[_random.Next(0, lilies.Count)];
             Frog frog = playerInfo.ChosenFrog switch
             {
-                "wren" => new CommonFrog(lily.Position, lily),
-                "vex" => new StickyFrog(lily.Position, lily),
-                "rook" => new ShovelFrog(lily.Position, lily),
+                "Common Frog" => new CommonFrog(lily.Position, lily),
+                "Sticky Frog" => new StickyFrog(lily.Position, lily),
+                "Heavy Frog" => new HeavyFrog(lily.Position, lily),
                 _ => throw new ArgumentException($"There is not such type of frog {playerInfo.ChosenFrog}")
             };
             map.Spawn(frog);

@@ -44,6 +44,7 @@ public static class MatchStateMapper
         var tip = frog.TonguePosition;
         return new FrogInfo(
             frog.Id,
+            frog.Name,
             frog.Position.X,
             frog.Position.Y,
             frog.Height,

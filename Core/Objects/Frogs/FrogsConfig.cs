@@ -42,7 +42,7 @@ public static class FrogPresets
 
     public static FrogConfig Sticky => FrogConfig.Default with
     {
-        Name = "Sticky",
+        Name = "Sticky Frog",
         TongueLength = 70,
         Radius = 5,
         Mass = 300f,

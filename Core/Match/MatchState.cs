@@ -25,6 +25,7 @@ public record FlyState(int Id, string Type, string Effect, float X, float Y, flo
 
 public record FrogInfo(
     int Id,
+    string Name,
     float X,
     float Y,
     float Height,
