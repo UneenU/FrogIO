@@ -14,10 +14,11 @@ public class HeroCatalog : IHeroCatalog
         var commonFrogInfo = FrogPresets.Common;
         var heavyFrogInfo = FrogPresets.Heavy;
         var stickyFrogInfo = FrogPresets.Sticky;
-        List<FrogConfig> frogs = [commonFrogInfo, heavyFrogInfo, stickyFrogInfo];
+        var sniperFrogInfo = FrogPresets.Sniper;
+        List<FrogConfig> frogs = [commonFrogInfo, heavyFrogInfo, stickyFrogInfo, sniperFrogInfo];
         return frogs
             .Select(f => 
-                new HeroDto(f.Name, f.Name, f.MaxJumpDistance, f.TongueLength, f.Radius, f.Mass, f.SwimSpeed))
+                new HeroDto(f.Name, f.Name, f.MaxJumpDistance, f.TongueConfig.Length, f.Radius, f.Mass, f.SwimSpeed))
             .ToArray();
     }
 }

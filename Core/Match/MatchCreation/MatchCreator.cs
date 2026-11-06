@@ -51,6 +51,7 @@ public class MatchCreator : IMatchCreator
                 "Common Frog" => new CommonFrog(lily.Position, lily),
                 "Sticky Frog" => new StickyFrog(lily.Position, lily),
                 "Heavy Frog" => new HeavyFrog(lily.Position, lily),
+                "Sniper Frog" => new SniperFrog(lily.Position, lily),
                 _ => throw new ArgumentException($"There is not such type of frog {playerInfo.ChosenFrog}")
             };
             map.Spawn(frog);
