@@ -6,4 +6,4 @@ namespace Core.Objects.Frogs;
 public sealed class StickyFrog(
     Vector2 position,
     WaterLily? lily = null)
-    : Frog(position, FrogPresets.Sticky, lily, new StickyTongue(100, 5, 3));
+    : Frog(position, FrogPresets.Sticky, lily, new StickyTongue(FrogPresets.Sticky.TongueConfig));

@@ -83,7 +83,7 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable, I
     public int NextAttackAvailableTick { get; private set; }
 
     // -------- Конструктор --------
-    protected Frog(Vector2 position, FrogConfig config, WaterLily? lily = null, Tongue? tongue = null)
+    protected Frog(Vector2 position, FrogConfig config, WaterLily? lily = null, Tongue tongue = null)
         : base(position, config.Radius)
     {
         Name = config.Name;
@@ -99,7 +99,7 @@ public abstract class Frog : GameObject, IMovable, ICollidable, IControllable, I
         Hp = config.Hp;
         Mass = config.Mass;
         Lily = lily;
-        Tongue = tongue ?? new PlainTongue(config.TongueLength, config.TongueSpeed);
+        Tongue = tongue;
     }
 
     // -------- Производные свойства --------

@@ -3,7 +3,7 @@ using Core.Systems.Abstraction;
 
 namespace Core.Objects.Frogs.Tongues;
 
-public class PlainTongue(float length, float speed) : Tongue(length, 4, speed)
+public class PlainTongue(TongueConfig config) : Tongue(config)
 {
     public override string Kind => "Plain";
 
@@ -30,6 +30,8 @@ public class PlainTongue(float length, float speed) : Tongue(length, 4, speed)
         Tip = Vector2.Normalize(direction) * newLength;
 
         owner.Aim(direction);
+
+        TryHitFrog(owner, ctx);
 
         if (newLength >= Constants.Epsilon) return false;
 

@@ -1,81 +1,45 @@
 using System.Numerics;
-using Core.Geometry;
-using Core.Objects;
 using Core.Systems.Abstraction;
 
 namespace Core.Objects.Frogs.Tongues;
 
 
-public sealed class ShovelTongue(
-    float length,
-    float width,
-    float slowSpeed,
-    float strikeSpeed,
-    float windupFraction = 0.35f,
-    float returnSpeedMultiplier = 2.5f) : Tongue(length, width, slowSpeed)
+public sealed class ShovelTongue(TongueConfig config) : Tongue(config)
 {
     public override string Kind => "Shovel";
 
-    /// <summary>Скорость резкого удара после фазы медленного подъёма.</summary>
-    public float StrikeSpeed { get; } = MathF.Max(strikeSpeed, Constants.Epsilon);
-
-    /// <summary>Доля длины, которую язык проходит медленно перед ударом (0..1).</summary>
-    public float WindupFraction { get; } = Math.Clamp(windupFraction, 0.05f, 0.95f);
-
-    /// <summary>Во время возврата язык убирается быстрее, чем поднимается.</summary>
-    public float ReturnSpeedMultiplier { get; } = MathF.Max(returnSpeedMultiplier, 1f);
-
     public override bool Update(Frog owner, SimulationContext ctx)
     {
-        var direction = owner.Facing;
+        if (State == TongueState.InMouth) return false;
+
+        var delta = Speed * (State == TongueState.Forwarding ? 1 : -1);
+        var direction = Tip != Vector2.Zero ? Vector2.Normalize(Tip) : owner.Facing;
+        var newLength = Math.Clamp(Tip.Length() + delta, 0f, MaxLength);
+        Tip = direction * newLength;
+
+        owner.Aim(direction);
 
         if (State == TongueState.Forwarding)
         {
-            var currentLength = Tip.Length();
-            var speed = currentLength < MaxLength * WindupFraction ? Speed : StrikeSpeed;
-            var newLength = MathF.Min(currentLength + speed, MaxLength);
-            Tip = direction * newLength;
-
-            // Удар регистрируется ровно один раз — при достижении полной длины.
+            if (!TryHitFrog(owner, ctx))
+                CatchFlies(owner, ctx);
             if (newLength >= MaxLength - Constants.Epsilon)
-            {
-                Slap(owner, ctx, direction);
                 State = TongueState.Returning;
-            }
-
-            return false;
         }
 
-        if (State == TongueState.Returning)
-        {
-            var returnSpeed = Speed * ReturnSpeedMultiplier;
-            var newLength = MathF.Max(0f, Tip.Length() - returnSpeed);
-            Tip = direction * newLength;
+        if (newLength >= Constants.Epsilon) return false;
 
-            if (newLength > Constants.Epsilon)
-                return false;
-
-            EndAttack(owner, ctx);
-            return true;
-        }
-
-        return false;
+        EndAttack(owner, ctx);
+        return true;
     }
 
-    private void Slap(Frog owner, SimulationContext ctx, Vector2 direction)
+    private void CatchFlies(Frog owner, SimulationContext ctx)
     {
-        var basePoint = owner.Position + owner.Radius * direction;
-        var endPoint = basePoint + direction * MaxLength;
-        var side = new Vector2(-direction.Y, direction.X) * (Width / 2f);
-        var leftEnd = endPoint + side;
-        var rightEnd = endPoint - side;
+        if (Tip.LengthSquared() < Constants.Epsilon) return;
 
         foreach (var fly in ctx.Map.Query<Fly>())
         {
-            if (fly.CaughtBy is not null)
-                continue;
-
-            if (!CircleIntersectsTriangle(fly.Position, fly.Radius, basePoint, leftEnd, rightEnd))
+            if (fly.CaughtBy is not null || !IntersectsCircle(owner, fly.Position, fly.Radius))
                 continue;
 
             fly.CaughtBy = owner;
@@ -83,34 +47,15 @@ public sealed class ShovelTongue(
         }
     }
 
-    private static bool CircleIntersectsTriangle(
-        Vector2 center,
-        float radius,
-        Vector2 a,
-        Vector2 b,
-        Vector2 c)
+    protected override bool IntersectsCircle(Frog owner, Vector2 center, float radius)
     {
-        if (IsInsideTriangle(center, a, b, c))
-            return true;
-        var distance = MathF.Min(
-            Geometry.Geometry.DistanceToSegment(a, b, center),
-            MathF.Min(
-                Geometry.Geometry.DistanceToSegment(b, c, center),
-                Geometry.Geometry.DistanceToSegment(c, a, center)));
+        var direction = Vector2.Normalize(Tip);
+        var basePoint = owner.Position + owner.Radius * direction;
+        var endPoint = basePoint + Tip;
+        var side = new Vector2(-direction.Y, direction.X) * (Width / 2f);
+        var leftEnd = endPoint + side;
+        var rightEnd = endPoint - side;
 
-        return distance <= radius;
+        return Geometry.Geometry.CircleIntersectsTriangle(center, radius, basePoint, leftEnd, rightEnd);
     }
-
-    private static bool IsInsideTriangle(Vector2 point, Vector2 a, Vector2 b, Vector2 c)
-    {
-        var ab = Cross(b - a, point - a);
-        var bc = Cross(c - b, point - b);
-        var ca = Cross(a - c, point - c);
-
-        var hasNegative = ab < 0f || bc < 0f || ca < 0f;
-        var hasPositive = ab > 0f || bc > 0f || ca > 0f;
-        return !(hasNegative && hasPositive);
-    }
-
-    private static float Cross(Vector2 a, Vector2 b) => a.X * b.Y - a.Y * b.X;
 }

@@ -3,9 +3,13 @@ using Core.Systems.Abstraction;
 
 namespace Core.Objects.Frogs.Tongues;
 
-public class StickyTongue(float length, float width, float speed) : Tongue(length, width, speed)
+public class StickyTongue(TongueConfig config) : Tongue(config)
 {
     public override string Kind => "sticky";
+
+    protected override bool IntersectsCircle(Frog owner, Vector2 center, float radius) =>
+        Geometry.Geometry.CircleIntersectsCapsule(center, radius,
+            owner.Position + owner.Radius * owner.Facing, GetTip(owner), Width / 2f);
 
     public override bool Update(Frog owner, SimulationContext ctx)
     {
@@ -16,8 +20,8 @@ public class StickyTongue(float length, float width, float speed) : Tongue(lengt
         var searchCircleRadius = Tip.Length() / 2;
         foreach (var fly in ctx.Map.ObjectsInCircle<Fly>(searchCircleCenter, searchCircleRadius))
         {
-            if (Geometry.Geometry.DistanceToSegment(owner.Position, GetTip(owner), fly.Position) >
-                fly.Radius + Width / 2) continue;
+            if (!Geometry.Geometry.CircleIntersectsCapsule(
+                    fly.Position, fly.Radius, owner.Position, GetTip(owner), Width / 2f)) continue;
 
             fly.CaughtBy = owner;
             if (!Caught.Contains(fly))
@@ -30,6 +34,8 @@ public class StickyTongue(float length, float width, float speed) : Tongue(lengt
         Tip = Vector2.Normalize(direction) * newLength;
 
         owner.Aim(direction);
+
+        TryHitFrog(owner, ctx);
 
         if (newLength >= Constants.Epsilon) return false;
 
