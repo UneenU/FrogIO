@@ -1,0 +1,16 @@
+{
+  "кувшинка1.png": "lily-pad-plain.png",
+  "кувшинка2.png": "lily-pad-white-flower.png",
+  "кувшинка3.png": "lily-pad-pink-flower.png",
+  "лягушка атакует.png": "frogs/common-frog/attack.png",
+  "лягушка плывет.png": "frogs/common-frog/swim.png",
+  "лягушка прыгает.png": "frogs/common-frog/jump.png",
+  "лягушка сидит.png": "frogs/common-frog/idle.png",
+  "лягушка.png": "frogs/common-frog/idle-first.png",
+  "Спрайт-лист мультяшной мухи в полёте.png": "fly.png",
+  "Спрайт-лист_ цикл полёта комара.png": "mosquito.png",
+  "Цикл взмахов крыльев светлячка.png": "firefly.png",
+  "ястреб взлет.png": "hawk-rise.png",
+  "ястреб пикирование.png": "hawk-dive.png",
+  "ястреб полет.png": "hawk-fly.png"
+}

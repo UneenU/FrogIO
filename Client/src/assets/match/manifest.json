@@ -1,0 +1,177 @@
+{
+  "common-frog/idle": {
+    "file": "common-frog-idle.png",
+    "size": 192,
+    "count": 8,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "heavy-frog/idle": {
+    "file": "heavy-frog-idle.png",
+    "size": 192,
+    "count": 8,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "sticky-frog/idle": {
+    "file": "sticky-frog-idle.png",
+    "size": 192,
+    "count": 8,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "sniper-frog/idle": {
+    "file": "sniper-frog-idle.png",
+    "size": 192,
+    "count": 8,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "common-frog/jump": {
+    "file": "common-frog-jump.png",
+    "size": 256,
+    "count": 6,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "heavy-frog/jump": {
+    "file": "heavy-frog-jump.png",
+    "size": 256,
+    "count": 6,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "sticky-frog/jump": {
+    "file": "sticky-frog-jump.png",
+    "size": 256,
+    "count": 6,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "sniper-frog/jump": {
+    "file": "sniper-frog-jump.png",
+    "size": 256,
+    "count": 6,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "common-frog/swim": {
+    "file": "common-frog-swim.png",
+    "size": 384,
+    "count": 8,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "heavy-frog/swim": {
+    "file": "heavy-frog-swim.png",
+    "size": 384,
+    "count": 8,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "sticky-frog/swim": {
+    "file": "sticky-frog-swim.png",
+    "size": 384,
+    "count": 8,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "sniper-frog/swim": {
+    "file": "sniper-frog-swim.png",
+    "size": 384,
+    "count": 8,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "common-frog/attack": {
+    "file": "common-frog-attack.png",
+    "size": 224,
+    "count": 2,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "heavy-frog/attack": {
+    "file": "heavy-frog-attack.png",
+    "size": 224,
+    "count": 2,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "sticky-frog/attack": {
+    "file": "sticky-frog-attack.png",
+    "size": 224,
+    "count": 2,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "sniper-frog/attack": {
+    "file": "sniper-frog-attack.png",
+    "size": 224,
+    "count": 2,
+    "bodyRadius": 64,
+    "heading": "down"
+  },
+  "fly": {
+    "file": "fly.png",
+    "size": 256,
+    "count": 8,
+    "bodyRadius": 128.0,
+    "heading": "down"
+  },
+  "mosquito": {
+    "file": "mosquito.png",
+    "size": 224,
+    "count": 8,
+    "bodyRadius": 112.0,
+    "heading": "down"
+  },
+  "firefly": {
+    "file": "firefly.png",
+    "size": 224,
+    "count": 8,
+    "bodyRadius": 112.0,
+    "heading": "up"
+  },
+  "hawk-fly": {
+    "file": "hawk-fly.png",
+    "size": 320,
+    "count": 8,
+    "bodyRadius": 144,
+    "heading": "down"
+  },
+  "hawk-dive": {
+    "file": "hawk-dive.png",
+    "size": 320,
+    "count": 8,
+    "bodyRadius": 144,
+    "heading": "down"
+  },
+  "hawk-rise": {
+    "file": "hawk-rise.png",
+    "size": 256,
+    "count": 8,
+    "bodyRadius": 144,
+    "heading": "down"
+  },
+  "lily-pad-round-1": {
+    "file": "lily-pad-round-1.png",
+    "size": 256,
+    "count": 1,
+    "bodyRadius": 128.0,
+    "heading": "down"
+  },
+  "lily-pad-round-2": {
+    "file": "lily-pad-round-2.png",
+    "size": 256,
+    "count": 1,
+    "bodyRadius": 128.0,
+    "heading": "down"
+  },
+  "lily-pad-round-3": {
+    "file": "lily-pad-round-3.png",
+    "size": 256,
+    "count": 1,
+    "bodyRadius": 128.0,
+    "heading": "down"
+  }
+}
