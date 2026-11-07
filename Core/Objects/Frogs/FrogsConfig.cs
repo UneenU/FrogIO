@@ -21,7 +21,7 @@ public sealed record FrogConfig
     public float SwimSpeed { get; init; } = 0.6f;
 
     public int AttackCooldownTicks { get; init; } = 60;
-    public TongueConfig TongueConfig { get; init; } = new TongueConfig(100, 2,2);
+    public TongueConfig TongueConfig { get; init; } = new TongueConfig(90, 2.5f,4f);
 
     public static FrogConfig Default => new();
 }
@@ -33,10 +33,9 @@ public static class FrogPresets
     public static FrogConfig Sniper => FrogConfig.Default with
     {
         Name = "Sniper Frog",
-        TongueConfig = new TongueConfig(220, 2, 8),
-        Radius = 3f,
+        TongueConfig = new TongueConfig(150, 2, 8),
+        Radius = 3.5f,
         Mass = 180f,
-        JumpSpeed = 1.1f,
         MaxJumpDistance = 70f,
         MaxWaterJumpDistance = 45f,
         JumpCooldownTicks = 90,
@@ -46,7 +45,7 @@ public static class FrogPresets
     public static FrogConfig Heavy => FrogConfig.Default with
     {
         Name = "Heavy Frog",
-        TongueConfig = new TongueConfig(40, 20, 2.2f),
+        TongueConfig = new TongueConfig(40, 20, 5f),
         Radius = 6f,
         Mass = 600f,
         SwimSpeed = 0.6f,
@@ -59,6 +58,6 @@ public static class FrogPresets
         Name = "Sticky Frog",
         Radius = 5,
         Mass = 300f,
-        TongueConfig = new TongueConfig(65, 2, 2)
+        TongueConfig = new TongueConfig(65, 2, 4)
     };
 }

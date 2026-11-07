@@ -99,12 +99,12 @@ public class LevelListGenerator
     private readonly LevelUpgrade[] _levelListPosition =
     [
         new("Mass", 0.5f, (frog, value) => frog.Mass += value),
-        new("Radius", 1, (frog, value) => frog.Radius += value),
-        new("JumpSpeed", 0.3f, (frog, value) => frog.JumpSpeed += value),
+        new("Radius", 0.5f, (frog, value) => frog.Radius += value),
+        new("JumpSpeed", 0.1f, (frog, value) => frog.JumpSpeed += value),
         new("MaxJumpDistance", 5, (frog, value) => frog.MaxJumpDistance += value),
-        new("TongueLength", 5, (frog, value) => frog.Tongue.MaxLength += value),
-        new("TongueWidth", 3f, (frog, value) => frog.Tongue.Width += value),
-        new("TongueSpeed", 0.3f, (frog, value) => frog.Tongue.Speed += value),
+        new("TongueLength", 2, (frog, value) => frog.Tongue.MaxLength += value),
+        new("TongueWidth", 0.5f, (frog, value) => frog.Tongue.Width += value),
+        new("TongueSpeed", 0.15f, (frog, value) => frog.Tongue.Speed += value),
         new("JumpCooldownTicks", 5, (frog, value) => frog.JumpCooldownTicks -= (int)value),
     ];
 
