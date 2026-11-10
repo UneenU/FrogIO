@@ -24,8 +24,7 @@ const bg = titleBackground ? { backgroundImage: `url(${titleBackground})` } : {}
 const hasNext = computed(() => items.value.length === PAGE_SIZE)
 const hasPrev = computed(() => page.value > 1)
 
-// Если на сервере enum сериализуется числом, подписи зависят от порядка значений
-// в C# MatchStatus — при необходимости поправьте таблицу под свой enum.
+// Числовые значения соответствуют серверному MatchStatus.
 const STATUS_TEXT: Record<string, string> = {
   '0': 'Создан',
   '1': 'Идёт',

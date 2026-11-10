@@ -23,7 +23,7 @@ try {
     const html = await renderToString(app)
     assert.ok(html.includes('<main'), `${page} has no main element`)
     assert.ok(!html.includes('undefined'), `${page} has an undefined binding`)
-    if (index === 0) assert.ok(html.includes('Пора в пруд!') && html.includes('Вход') && html.includes('Регистрация'))
+    if (index === 0) assert.ok(html.includes('Вход в игру') && html.includes('Вход') && html.includes('Регистрация'))
     if (index === 1) {
       assert.equal((html.match(/class="frog-idle"/g)||[]).length,3,'Three actual hero cards should render')
       assert.ok(html.includes('Я готов!'))
