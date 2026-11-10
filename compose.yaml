@@ -1,0 +1,112 @@
+name: frogio
+x-app-environment: &app-environment
+  ASPNETCORE_ENVIRONMENT: Production
+  ASPNETCORE_HTTP_PORTS: "8080"
+  Frontend__AllowedOrigins__0: "https://${SITE_ADDRESS:?SITE_ADDRESS is required}"
+  AllowedHosts: ${SITE_ADDRESS:?SITE_ADDRESS is required}
+  ConnectionStrings__GameDatabase: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};GSS Encryption Mode=Disable"
+  ConnectionStrings__Redis: "redis:6379"
+  ReverseProxy__Address: ${PROXY_IP:-172.30.50.10}
+
+services:
+  postgres:
+    image: postgres:19rc1-trixie
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks:
+      - frogio
+    restart: unless-stopped
+  
+  redis:
+    image: redis:8.10.2
+    command: [ "redis-server", "--save", "", "--appendonly", "no" ]
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - frogio
+    restart: unless-stopped
+  
+  migrate:
+    build:
+      context: .
+      dockerfile: Server/Dockerfile
+    environment:
+      <<: *app-environment
+      RunMigrations: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - frogio
+    restart: "no"
+
+  server:
+    build:
+      context: .
+      dockerfile: Server/Dockerfile
+    environment:
+      <<: *app-environment
+      DataProtection__KeysPath: /var/lib/frogio/keys
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - frogio
+    restart: unless-stopped
+    volumes:
+      - server_keys:/var/lib/frogio/keys
+
+  web:
+    build:
+      context: .
+      dockerfile: Client/Dockerfile
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?SITE_ADDRESS is required}
+    ports:
+      - "${WEB_BIND_ADDRESS:-127.0.0.1}:80:80"
+      - "${WEB_BIND_ADDRESS:-127.0.0.1}:443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - server
+    networks:
+      frogio:
+        ipv4_address: ${PROXY_IP:-172.30.50.10}
+    restart: unless-stopped
+
+networks:
+  frogio:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${DOCKER_SUBNET:-172.30.50.0/24}
+
+volumes:
+  server_keys:
+  postgres_data:
+  caddy_data:
+  caddy_config:

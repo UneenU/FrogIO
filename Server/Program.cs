@@ -4,6 +4,7 @@ using Core.Match.MatchCreator;
 using Core.Objects;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,8 +23,34 @@ using Server.Match.MatchService;
 using Server.Matches;
 using Server.Storage;
 using StackExchange.Redis;
+using System.Net;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+
+    var proxyAddress = builder.Configuration["ReverseProxy:Address"];
+
+    if (!string.IsNullOrWhiteSpace(proxyAddress))
+    {
+        options.KnownProxies.Add(IPAddress.Parse(proxyAddress));
+    }
+});
+
+var dataProtection = builder.Services
+    .AddDataProtection()
+    .SetApplicationName("FrogIO");
+
+var keysPath = builder.Configuration["DataProtection:KeysPath"];
+if (!string.IsNullOrWhiteSpace(keysPath))
+{
+    dataProtection.PersistKeysToFileSystem(new DirectoryInfo(keysPath));
+}
 
 var isDevelopment = builder.Environment.IsDevelopment();
 
@@ -152,8 +179,11 @@ builder.Services.AddCors(options =>
 
 // -------------------- Redis --------------------
 
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis")
+                            ?? throw new InvalidOperationException("Connection string 'Redis' is missing.");
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
-    ConnectionMultiplexer.Connect("localhost:6379"));
+    ConnectionMultiplexer.Connect(redisConnectionString));
 
 builder.Services.AddSingleton<IConnectionManager, AuthConnectionManager>();
 builder.Services.AddSingleton<MatchNotifier>();
@@ -199,8 +229,20 @@ builder.Logging.AddConsole();
 
 var app = builder.Build();
 
+if (builder.Configuration.GetValue<bool>("RunMigrations"))
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<GameDbContext>();
+
+    app.Logger.LogInformation("Applying database migrations");
+    await dbContext.Database.MigrateAsync();
+    app.Logger.LogInformation("Database migrations completed");
+    return;
+}
+
 // -------------------- HTTP pipeline --------------------
 
+app.UseForwardedHeaders();
 if (!isDevelopment)
 {
     app.UseHttpsRedirection();

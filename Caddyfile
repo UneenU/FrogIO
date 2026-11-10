@@ -1,0 +1,21 @@
+{
+    default_sni {$SITE_ADDRESS}
+}
+
+{$SITE_ADDRESS} {
+    tls internal
+
+    encode zstd gzip
+
+    @backend path /api/* /hubs/*
+
+    handle @backend {
+        reverse_proxy server:8080
+    }
+
+    handle {
+        root * /srv
+        try_files {path} /index.html
+        file_server
+    }
+}

@@ -19,3 +19,4 @@ riderModule.iml
 !.env.example
 !.env.*.example
 secrets/
+compose.override.yaml
