@@ -11,21 +11,22 @@ namespace Core.Match.MatchCreator;
 
 public class MatchCreator : IMatchCreator
 {
-    private readonly MapCreator _mapCreator;
-    private readonly Random _random;
+    private readonly MapConfig _mapConfig;
+    private readonly int? _seed;
     private readonly AiControllerFactory _factory;
 
-    public MatchCreator(MapCreator mapCreator, int seed, AiControllerFactory factory)
+    public MatchCreator(MapConfig mapConfig, int? seed, AiControllerFactory factory)
     {
-        _mapCreator = mapCreator;
-        _random = new Random(seed);
+        _mapConfig = mapConfig;
+        _seed = seed;
         _factory = factory;
     }
 
 
     public Match CreateMatch(PlayerInit[] playersInfo)
     {
-        var map = _mapCreator.Create();
+        var random = _seed.HasValue ? new Random(_seed.Value) : new Random();
+        var map = new MapCreator(_mapConfig, random.Next()).Create();
         Player[] players = new Player[playersInfo.Length];
 
         var lilies = map.Query<WaterLily>().ToList();
@@ -33,7 +34,7 @@ public class MatchCreator : IMatchCreator
         List<IAiController> aiControllers = new List<IAiController>();
         foreach (var fly in map.Query<Fly>())
         {
-            var aiController = _factory.NewFlyAiController(fly);
+            var aiController = _factory.NewFlyAiController(fly, random);
             aiControllers.Add(aiController);
         }
 
@@ -45,7 +46,7 @@ public class MatchCreator : IMatchCreator
         {
             var playerInfo = playersInfo[i];
             // создание лягушки по свойству chosenFrog
-            var lily = lilies[_random.Next(0, lilies.Count)];
+            var lily = lilies[random.Next(0, lilies.Count)];
             Frog frog = playerInfo.ChosenFrog switch
             {
                 "Common Frog" => new CommonFrog(lily.Position, lily),
@@ -63,7 +64,7 @@ public class MatchCreator : IMatchCreator
         map.ApplyPendingChanges();
 
         var control = new ControlSystem();
-        var levelSystem = new LevelingSystem();
+        var levelSystem = new LevelingSystem(random);
         
         // Собыийная модель
         var events = new EventDispatcher();
@@ -80,13 +81,13 @@ public class MatchCreator : IMatchCreator
         ISimulationSystem[] systems =
         [
             new PlatformShrinkSystem(),
-            new FlySpawnSystem(aiSystem, _factory, random: new Random(_random.Next())),
-            new RespawnSystem(),
+            new FlySpawnSystem(aiSystem, _factory, random: random),
+            new RespawnSystem(random),
             new CollisionSystem(),
             new LandingSystem(),
             new AttackSystem(),
             new WaterSplashSystem(),
-            new StorkSystem(),
+            new StorkSystem(random: random),
             sinkingSystem,
             new MovementSystem(new FlowSystem()),
             new EffectSystem()

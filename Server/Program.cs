@@ -196,14 +196,14 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // -------------------- Match --------------------
 
-builder.Services.AddScoped<MapCreator>(_ =>
+builder.Services.AddScoped<MapConfig>(_ =>
 {
     var config = new MapConfig(400, 400,
     [
         new ObjectSpawn(typeof(WaterLily), 40)
     ]);
 
-    return new MapCreator(config, 42);
+    return config;
 });
 
 builder.Services.AddScoped<IMatchRepository, RedisMatchRepository>();
@@ -213,12 +213,12 @@ builder.Services.AddScoped<IRatingSystem, RatingSystem>();
 
 builder.Services.AddScoped<IMatchCreator>(provider =>
 {
-    var mapCreator = provider.GetRequiredService<MapCreator>();
+    var mapConfig = provider.GetRequiredService<MapConfig>();
+    int? seed = isDevelopment
+        ? builder.Configuration.GetValue<int>("Game:DevelopmentSeed", 42)
+        : null;
 
-    return new MatchCreator(
-        mapCreator,
-        1,
-        new AiControllerFactory());
+    return new MatchCreator(mapConfig, seed, new AiControllerFactory());
 });
 
 // -------------------- Other services --------------------

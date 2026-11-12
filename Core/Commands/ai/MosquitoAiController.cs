@@ -5,22 +5,29 @@ using Core.Systems.Abstraction;
 
 namespace Core.Commands;
 
-public sealed class MosquitoAiController(Mosquito controllable) : IAiController<Mosquito>
+public sealed class MosquitoAiController : IAiController<Mosquito>
 {
     private const float FrogInterestRadius = 100f;
     private const float PanicDistance = 40f;
     private const float AttackReactionDistance = 60f;
 
-    private readonly Random _random = new();
+    private readonly Random _random;
     private Vector2 _target;
     private int _nextDecisionTick;
     private int _fleeUntilTick;
     private float _orbitAngle;
-    private int _orbitDirection = Random.Shared.Next(2) == 0 ? -1 : 1;
+    private int _orbitDirection;
     private bool _hasTarget;
     private Frog? _orbitingFrog;
 
-    public Mosquito Controllable { get; } = controllable;
+    public Mosquito Controllable { get; }
+
+    public MosquitoAiController(Mosquito controllable, Random? random = null)
+    {
+        Controllable = controllable;
+        _random = random ?? new Random();
+        _orbitDirection = _random.Next(2) == 0 ? -1 : 1;
+    }
 
     public Command Think(SimulationContext ctx)
     {

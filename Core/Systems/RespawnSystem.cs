@@ -4,11 +4,11 @@ using Core.Systems.Abstraction;
 
 namespace Core.Systems;
 
-public class RespawnSystem : ISimulationSystem
+public class RespawnSystem(Random? random = null) : ISimulationSystem
 {
     private const int RespawnDelayInTicks = 5 * Constants.TicksInSecond;
     private readonly Dictionary<Frog, int> _ticksUntilRespawn = new();
-    private readonly Random _random = new();
+    private readonly Random _random = random ?? new Random();
 
     public void Update(SimulationContext ctx)
     {

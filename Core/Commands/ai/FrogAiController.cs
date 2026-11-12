@@ -7,9 +7,9 @@ using Core.Systems.Abstraction;
 
 namespace Core.Commands;
 
-public class FrogAiController(Frog controllable) : IAiController<Frog>
+public class FrogAiController(Frog controllable, Random? random = null) : IAiController<Frog>
 {
-    private readonly Random _random = new();
+    private readonly Random _random = random ?? new Random();
 
     private const float AimDepth = 0.75f;
     private const int RetargetEveryTicks = 300;

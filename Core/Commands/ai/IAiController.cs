@@ -18,19 +18,19 @@ public interface IAiController<out T> : IAiController where T : IControllable
 
 public class AiControllerFactory
 {
-    public IAiController<Fly> NewFlyAiController(Fly fly)
+    public IAiController<Fly> NewFlyAiController(Fly fly, Random? random = null)
     {
         if (fly is Mosquito mosquito)
-            return new MosquitoAiController(mosquito);
+            return new MosquitoAiController(mosquito, random);
 
         if (fly is Firefly firefly)
-            return new FireflyAiController(firefly);
+            return new FireflyAiController(firefly, random);
 
-        return new FlyAiController(fly);
+        return new FlyAiController(fly, random);
     }
 
-    public IAiController<Frog> NewFrogAiController(Frog frog)
+    public IAiController<Frog> NewFrogAiController(Frog frog, Random? random = null)
     {
-        return new FrogAiController(frog);
+        return new FrogAiController(frog, random);
     }
 }

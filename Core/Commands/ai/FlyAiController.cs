@@ -6,11 +6,11 @@ using Core.Systems.Abstraction;
 
 namespace Core.Commands;
 
-public sealed class FlyAiController(Fly controllable) : IAiController<Fly>
+public sealed class FlyAiController(Fly controllable, Random? random = null) : IAiController<Fly>
 {
     private const float FrogDetectionRadius = 40f;
 
-    private readonly Random _random = new();
+    private readonly Random _random = random ?? new Random();
     private Vector2 _target;
     private int _nextDecisionTick;
     private int _fleeUntilTick;

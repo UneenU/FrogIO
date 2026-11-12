@@ -6,9 +6,9 @@ using Core.Systems.Abstraction;
 
 namespace Core.Systems;
 
-public class LevelingSystem : IEventHandler<FrogEatFlyEvent>
+public class LevelingSystem(Random? random = null) : IEventHandler<FrogEatFlyEvent>
 {
-    private readonly LevelListGenerator _levelListGenerator = new LevelListGenerator();
+    private readonly LevelListGenerator _levelListGenerator = new(random);
     private readonly Dictionary<Frog, Queue<LevelUpgrade[]>> _levelLists = new();
 
     void IEventHandler<FrogEatFlyEvent>.Handle(FrogEatFlyEvent e, SimulationContext simulationContext)
@@ -94,7 +94,7 @@ public class LevelUpgrade(string name, float value, Action<Frog, float> apply)
     }
 }
 
-public class LevelListGenerator
+public class LevelListGenerator(Random? random = null)
 {
     private readonly LevelUpgrade[] _levelListPosition =
     [
@@ -108,7 +108,7 @@ public class LevelListGenerator
         new("JumpCooldownTicks", 5, (frog, value) => frog.JumpCooldownTicks -= (int)value),
     ];
 
-    private readonly Random _random = new();
+    private readonly Random _random = random ?? new Random();
 
     public LevelUpgrade GeneratePosition()
     {

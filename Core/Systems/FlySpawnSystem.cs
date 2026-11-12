@@ -41,7 +41,7 @@ public sealed class FlySpawnSystem(
             fly.Effect = GetRandomEffect();
             
             ctx.Map.Spawn(fly);
-            ai.Add(aiFactory.NewFlyAiController(fly));
+            ai.Add(aiFactory.NewFlyAiController(fly, _random));
             total++;
         }
     }
