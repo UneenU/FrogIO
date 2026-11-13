@@ -218,7 +218,8 @@ builder.Services.AddScoped<IMatchCreator>(provider =>
         ? builder.Configuration.GetValue<int>("Game:DevelopmentSeed", 42)
         : null;
 
-    return new MatchCreator(mapConfig, seed, new AiControllerFactory());
+    return new MatchCreator(mapConfig, seed, new AiControllerFactory(),
+        builder.Configuration.GetSection("Game:Weather").Get<Core.Match.WeatherSettings>());
 });
 
 // -------------------- Other services --------------------

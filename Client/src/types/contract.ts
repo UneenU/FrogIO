@@ -126,6 +126,14 @@ export interface PlatformState extends RectState {
   shrinkTicksLeft: number
   nextBounds: RectState | null
 }
+export enum WeatherKind { Clear = 0, Rain = 1, Fog = 2 }
+export interface WeatherState {
+  kind: WeatherKind | 'Clear' | 'Rain' | 'Fog'
+  startedAtTick: number
+  endsAtTick: number
+  /** Радиус видимости в мировых единицах; null при ясности и дожде. */
+  visibilityRadius: number | null
+}
 export interface MatchState {
   tick: number
   time: number
@@ -133,6 +141,8 @@ export interface MatchState {
   isEnded: boolean
   /** Текущий час игрового мира (0..23), задаётся сервером. */
   worldHour: number
+  /** Необязательное поле для совместимости со снимками до добавления погоды. */
+  weather?: WeatherState
   platform: PlatformState
   frogs: FrogInfo[]
   pads: PadState[]

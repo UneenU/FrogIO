@@ -5,6 +5,7 @@ import { MatchRenderer } from '@/game/renderer'
 import { useLobbyStore } from '@/stores/lobby'
 import { useMatchStore } from '@/stores/match'
 import type { Input } from '@/types/contract'
+import { weatherLabel } from '@/game/weather'
 const lobby=useLobbyStore(), match=useMatchStore(), router=useRouter()
 const canvas=ref<HTMLCanvasElement|null>(null), zoom=ref(100)
 let engine:MatchRenderer|null=null
@@ -37,6 +38,7 @@ onBeforeUnmount(()=>{engine?.destroy();engine=null})
   <main class="match-screen">
     <canvas ref="canvas" aria-label="Игровое поле" />
     <div class="match-ui match-clock" aria-label="Оставшееся время">{{ time }}</div>
+    <div class="match-ui match-weather" role="status" aria-live="polite">{{ weatherLabel(match.state?.weather) }}</div>
     <aside v-if="effects.length" class="match-ui match-effects" aria-label="Активные эффекты">
       <strong>Эффекты</strong><ul><li v-for="(effect,i) in effects" :key="`${i}-${effect}`">{{ effect }}</li></ul>
     </aside>
@@ -59,9 +61,10 @@ onBeforeUnmount(()=>{engine?.destroy();engine=null})
 canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
 .match-ui{position:absolute;z-index:1;background:#fffbed;border:2px solid #111b1b;border-radius:13px;box-shadow:3px 4px 0 #111b1b;padding:12px}
 .match-clock{top:16px;left:16px;background:#ffdb54;font:900 25px/1 ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.match-weather{top:16px;left:125px;font-size:13px;font-weight:800}
 .match-effects{left:16px;top:78px;max-width:230px;max-height:30vh;overflow:auto;font-size:12px}.match-effects ul{padding-left:18px;margin-bottom:0}
 .match-scores{top:16px;right:16px;width:190px;font-size:12px}.match-scores ol{list-style:none;padding:0;display:grid;gap:4px}.match-scores li{display:flex;justify-content:space-between;gap:10px;padding:6px;border-radius:6px}.match-scores li span{overflow-wrap:anywhere;min-width:0}.self{background:#d8ef9d}
 button{font:inherit;font-weight:800;border:2px solid #111b1b;border-radius:8px;padding:7px 12px;background:#f5e7c6;cursor:pointer}button:hover{background:#ffdf63}button:focus-visible{outline:3px solid #1763a8;outline-offset:3px}.match-scores button{width:100%}
 .match-zoom{bottom:16px;left:16px;font-size:12px}.match-upgrades{bottom:16px;left:50%;transform:translateX(-50%);width:min(440px,calc(100% - 32px));z-index:2}.match-upgrades p{font-size:12px;color:#53685d;margin:5px 0 10px}.match-upgrades>div{display:flex;gap:8px}.match-upgrades button{flex:1;min-width:0;font-size:12px;background:#e5f5ac;display:grid;gap:8px}.match-wait{left:50%;top:50%;transform:translate(-50%,-50%)}
-@media(max-width:520px){.match-clock{left:10px;top:10px;font-size:20px;padding:10px}.match-scores{right:10px;top:10px;width:145px;padding:8px;font-size:11px}.match-effects{left:10px;top:65px;max-width:calc(100% - 175px);padding:8px}.match-upgrades{bottom:60px;padding:10px}.match-upgrades>div{flex-direction:column}.match-upgrades button{display:flex;justify-content:space-between;padding:8px}}
+@media(max-width:520px){.match-clock{left:10px;top:10px;font-size:20px;padding:10px}.match-weather{top:65px;left:10px;padding:7px;font-size:11px}.match-scores{right:10px;top:10px;width:145px;padding:8px;font-size:11px}.match-effects{left:10px;top:110px;max-width:calc(100% - 175px);padding:8px}.match-upgrades{bottom:60px;padding:10px}.match-upgrades>div{flex-direction:column}.match-upgrades button{display:flex;justify-content:space-between;padding:8px}}
 </style>

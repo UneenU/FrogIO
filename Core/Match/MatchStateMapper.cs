@@ -22,7 +22,8 @@ public static class MatchStateMapper
             map.Query<Fly>().Select(ToFlyState).ToArray(),
             map.Query<WaterSplash>().Select(ToSplashState).ToArray(),
             map.Query<Stork>().Select(ToStorkState).ToArray(),
-            scores);
+            scores,
+            map.Weather);
 
     private static PlatformState ToPlatformState(Platform platform)
     {

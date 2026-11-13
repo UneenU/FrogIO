@@ -11,6 +11,7 @@ import { MistPainter, mistOpacity } from './mist'
 import { drawShovelTongue, textureTongue } from './tongue'
 import type { Viewport } from './viewport'
 import { mixColor, WorldClock } from './worldLighting'
+import { WeatherPainter } from './weather'
 
 type Position = { x: number; y: number; angle?: number }
 type Animation = { name: string; since: number }
@@ -29,8 +30,10 @@ export class Scene {
   private clock = new WorldClock()
   private platform = new PlatformPainter()
   private mist = new MistPainter()
+  private weather = new WeatherPainter()
 
   reset() {
+    this.weather.reset()
     this.state = null
     this.frogs.clear(); this.flies.clear(); this.animations.clear(); this.birdMotion.clear()
     this.birds = []; this.clock.reset()
@@ -210,6 +213,9 @@ export class Scene {
       ctx.beginPath(); platformPath(ctx, next); ctx.stroke(); ctx.setLineDash([])
     }
     ctx.restore()
+    const ownFrog = state.frogs.find(frog => frog.id === self)
+    const weatherCenter = ownFrog ? this.position(ownFrog, this.frogs) : { x: view.x, y: view.y }
+    this.weather.draw(ctx, view, state.weather, weatherCenter, now)
   }
 
   target(id: number | null) { return id === null ? undefined : this.state?.frogs.find(frog => frog.id === id) }

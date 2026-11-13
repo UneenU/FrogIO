@@ -17,7 +17,8 @@ public record MatchState(
     FlyState[] Flies,
     SplashState[] Splashes,
     StorkState[] Storks,
-    Dictionary<int, int> Scores);
+    Dictionary<int, int> Scores,
+    WeatherState Weather);
 
 public record PadState(int Id, float X, float Y, float Height, float Radius);
 

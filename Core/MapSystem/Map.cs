@@ -1,4 +1,5 @@
 using System.Numerics;
+using Core.Match;
 using Core.Objects.Abstraction;
 
 namespace Core.MapSystem;
@@ -15,6 +16,7 @@ public class Map
     public float Height { get; }
 
     public Platform Platform { get; }
+    public WeatherState Weather { get; internal set; } = WeatherState.Clear;
 
     public IReadOnlyList<GameObject> GameObjects => _gameObjects.AsReadOnly();
 

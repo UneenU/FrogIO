@@ -14,12 +14,15 @@ public class MatchCreator : IMatchCreator
     private readonly MapConfig _mapConfig;
     private readonly int? _seed;
     private readonly AiControllerFactory _factory;
+    private readonly WeatherSettings _weatherSettings;
 
-    public MatchCreator(MapConfig mapConfig, int? seed, AiControllerFactory factory)
+    public MatchCreator(MapConfig mapConfig, int? seed, AiControllerFactory factory,
+        WeatherSettings? weatherSettings = null)
     {
         _mapConfig = mapConfig;
         _seed = seed;
         _factory = factory;
+        _weatherSettings = weatherSettings ?? WeatherSettings.Default;
     }
 
 
@@ -80,6 +83,7 @@ public class MatchCreator : IMatchCreator
         // Системы симуляции
         ISimulationSystem[] systems =
         [
+            new WeatherSystem(_weatherSettings, random),
             new PlatformShrinkSystem(),
             new FlySpawnSystem(aiSystem, _factory, random: random),
             new RespawnSystem(random),
